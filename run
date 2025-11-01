@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
+import logging
 
 # Ensure ``src`` is importable before importing project modules.
 PROJECT_ROOT = Path(__file__).resolve().parent
 SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
+os.environ['LOG_FILE'] = 'acme_cli.log'
 
 from src.acme_cli.runner import CommandError, run_install, run_score, run_tests
 
@@ -31,8 +34,45 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     return parser
 
+def initialize_logging(log_file: Path):
+    """Initialize logging to the provided log file, creating it if it doesn't exist."""
+    # Ensure the log file directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Set up logging configuration
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.DEBUG,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    logging.info(f"Logging started. Log file: {log_file}")
 
 def main(argv: list[str] | None = None) -> int:
+    # Get the log file path from the environment variable $LOG_FILE
+    log_file_path = os.getenv('LOG_FILE')
+
+    if not log_file_path:
+        print("Error: The environment variable LOG_FILE is not set.", file=sys.stderr)
+        sys.exit(1)  # Exit if the environment variable is not set
+
+    log_file = Path(log_file_path)
+
+    # Check if the log file exists, and create it if it doesn't
+    if not log_file.exists():
+        print(f"Log file {log_file} does not exist. Creating it now...", file=sys.stderr)
+        initialize_logging(log_file)  # This will create the file and initialize logging
+    else:
+        # If file exists, just initialize logging
+        initialize_logging(log_file)
+
+    # Continue with the rest of the program
+    logging.info("Program started.")
+    print(f"Log file {log_file} exists. Continuing the program...")
+
+    # Example: Additional program logic can go here.
+    # logging.info("Running some part of the program...")
+    
+    # Add your program logic here (e.g., setting up logging, etc.)
     parser = _build_parser()
     ns = parser.parse_args(argv)
     if ns.command == "install":
