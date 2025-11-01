@@ -1,0 +1,3 @@
+2025-11-01 01:16:52,249 - acme_cli - INFO - Scored model https://huggingface.co/google-bert/bert-base-uncased
+2025-11-01 01:16:52,668 - acme_cli - INFO - Scored model https://huggingface.co/parvk11/audience_classifier_model
+2025-11-01 01:16:53,753 - acme_cli - INFO - Scored model https://huggingface.co/openai/whisper-tiny/tree/main

@@ -15,26 +15,7 @@ from acme_cli.scoring_engine import ModelScorer
 from acme_cli.types import MetricResult, ScoreTarget
 from acme_cli.utils import clamp
 
-# Set up logging to a file (acme_cli.log) and console
 LOGGER = logging.getLogger("acme_cli")
-LOGGER.setLevel(logging.DEBUG)  # Set the desired log level (DEBUG, INFO, etc.)
-
-# File handler to write logs to a file
-file_handler = logging.FileHandler('acme_cli.log')
-file_handler.setLevel(logging.DEBUG)  # Adjust this as necessary (e.g., INFO)
-
-# Console handler to output logs to the console (optional)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-
-# Create a formatter for the log messages (optional, but useful)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
-console_handler.setFormatter(formatter)
-
-# Add handlers to the logger
-LOGGER.addHandler(file_handler)
-LOGGER.addHandler(console_handler)
 
 
 def score_file(url_file: Path, cli_args: Sequence[str]) -> None:
