@@ -2,7 +2,7 @@ Metadata-Version: 2.4
 Name: acme-cli
 Version: 0.1.0
 Summary: ACME internal CLI for trustworthy model reuse scoring
-Requires-Python: >=3.10
+Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: typer<0.13,>=0.12
 Requires-Dist: huggingface-hub>=0.23

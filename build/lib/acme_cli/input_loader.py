@@ -16,21 +16,22 @@ def parse_url_file(path: Path) -> list[ScoreTarget]:
     targets: list[ScoreTarget] = []
 
     for line in lines:
-        if is_dataset_url(line):
-            dataset_buffer.append(line)
-            continue
-        if is_code_url(line):
-            code_buffer.append(line)
-            continue
-        if is_model_url(line):
-            targets.append(ScoreTarget(model_url=line, dataset_urls=list(dataset_buffer), code_urls=list(code_buffer)))
-            dataset_buffer.clear()
-            code_buffer.clear()
-            continue
-        # Unknown URLs are treated as supporting material for the upcoming model.
-        dataset_buffer.append(line)
+        # Split the line by commas to separate model, dataset, and code links
+        url_parts = [part.strip() for part in line.split(',')]
+
+        if len(url_parts) > 3 or len(url_parts) < 1:
+            raise ValueError(f"Invalid line format: {line}. Expected 'model_url, dataset_url, code_url'")
+
+        # Extract the model, dataset, and code URLs
+        code_url, dataset_url, model_url = url_parts
+        dataset_buffer.append(dataset_url)
+        code_buffer.append(code_url)
+        
+        # Create a ScoreTarget object for each line
+        targets.append(ScoreTarget(model_url=model_url, dataset_urls=list(dataset_buffer), code_urls=list(code_buffer)))
 
     return targets
+
 
 
 def _iter_lines(path: Path) -> Iterator[str]:

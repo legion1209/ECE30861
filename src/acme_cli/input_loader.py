@@ -19,7 +19,7 @@ def parse_url_file(path: Path) -> list[ScoreTarget]:
         # Split the line by commas to separate model, dataset, and code links
         url_parts = [part.strip() for part in line.split(',')]
 
-        if len(url_parts) != 3:
+        if len(url_parts) > 3 or len(url_parts) < 1:
             raise ValueError(f"Invalid line format: {line}. Expected 'model_url, dataset_url, code_url'")
 
         # Extract the model, dataset, and code URLs

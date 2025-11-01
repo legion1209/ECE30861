@@ -49,7 +49,7 @@ def run_score(url_file: Path, cli_args: Sequence[str] | None = None) -> int:
     from acme_cli.scoring import score_file  # pylint: disable=import-error
 
     score_file(url_file, cli_args or [])
-    return 0
+    return 1
 
 
 def _checked_run(cmd: Sequence[str]) -> int:
@@ -58,7 +58,7 @@ def _checked_run(cmd: Sequence[str]) -> int:
         subprocess.run(cmd, check=True)  # noqa: S603, S607
     except subprocess.CalledProcessError as exc:  # pragma: no cover - defensive
         raise CommandError(str(exc)) from exc
-    return 0
+    return 1
 
 
 __all__ = ["CommandError", "run_install", "run_tests", "run_score"]
