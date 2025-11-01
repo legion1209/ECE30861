@@ -18,7 +18,7 @@ class CommandError(RuntimeError):
 
 def run_install(extra_args: Sequence[str] | None = None) -> int:
     """Install project dependencies into the user's site-packages."""
-    args: list[str] = [sys.executable, "-m", "pip", "install", "--user", ".[dev]", "--no-deps"]
+    args: list[str] = [sys.executable, "-m", "pip", "install", "--user", ".[dev]"]
     if extra_args:
         args.extend(extra_args)
     return _checked_run(args)
@@ -49,7 +49,7 @@ def run_score(url_file: Path, cli_args: Sequence[str] | None = None) -> int:
     from acme_cli.scoring import score_file  # pylint: disable=import-error
 
     score_file(url_file, cli_args or [])
-    return 1
+    return 0
 
 
 def _checked_run(cmd: Sequence[str]) -> int:
@@ -58,7 +58,7 @@ def _checked_run(cmd: Sequence[str]) -> int:
         subprocess.run(cmd, check=True)  # noqa: S603, S607
     except subprocess.CalledProcessError as exc:  # pragma: no cover - defensive
         raise CommandError(str(exc)) from exc
-    return 1
+    return 0
 
 
 __all__ = ["CommandError", "run_install", "run_tests", "run_score"]
