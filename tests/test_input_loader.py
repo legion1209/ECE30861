@@ -4,13 +4,8 @@ from acme_cli.input_loader import parse_url_file
 
 
 def test_parse_url_file(tmp_path: Path) -> None:
-    content = "\n".join(
-        [
-            "https://huggingface.co/datasets/acme/demo",
-            "https://github.com/acme/repo",
-            "https://huggingface.co/acme/model",
-        ]
-    )
+    content = "https://github.com/acme/repo,https://huggingface.co/datasets/acme/demo,https://huggingface.co/acme/model"
+    print(content)
     url_file = tmp_path / "urls.txt"
     url_file.write_text(content)
 

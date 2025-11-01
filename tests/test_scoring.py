@@ -53,7 +53,7 @@ class _ModelScorerStub:
 
 def test_score_file_emits_ndjson(tmp_path: Path, monkeypatch, capsys) -> None:
     url_file = tmp_path / "urls.txt"
-    url_file.write_text("https://huggingface.co/acme/model\n")
+    url_file.write_text(",,https://huggingface.co/acme/model")
     log_path = tmp_path / "log.txt"
     monkeypatch.setenv("LOG_FILE", str(log_path))
 
@@ -87,7 +87,7 @@ class _FailingScorer:
 
 def test_score_file_handles_failures(tmp_path: Path, monkeypatch, capsys) -> None:
     url_file = tmp_path / "urls.txt"
-    url_file.write_text("https://huggingface.co/acme/model\n")
+    url_file.write_text(",,https://huggingface.co/acme/model")
     log_path = tmp_path / "log.txt"
     monkeypatch.setenv("LOG_FILE", str(log_path))
 
