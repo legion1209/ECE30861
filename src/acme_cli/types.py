@@ -9,7 +9,7 @@ from typing import Any, Literal, Mapping, MutableMapping
 ModelCategory = Literal["CODE", "DATASET", "MODEL"]
 
 
-@dataclass(slots=True)
+@dataclass()
 class ScoreTarget:
     """Represents a model entry to score along with auxiliary artifacts."""
 
@@ -18,7 +18,7 @@ class ScoreTarget:
     code_urls: list[str] = field(default_factory=list)
 
 
-@dataclass(slots=True)
+@dataclass()
 class RepoFile:
     """Metadata describing a file stored inside a Hugging Face repository."""
 
@@ -26,7 +26,7 @@ class RepoFile:
     size_bytes: int | None
 
 
-@dataclass(slots=True)
+@dataclass()
 class ModelMetadata:
     """Subset of Hugging Face model metadata required for scoring."""
 
@@ -42,7 +42,7 @@ class ModelMetadata:
     library_name: str | None
 
 
-@dataclass(slots=True)
+@dataclass()
 class DatasetMetadata:
     """Relevant subset of Hugging Face dataset metadata."""
 
@@ -55,7 +55,7 @@ class DatasetMetadata:
     license: str | None
 
 
-@dataclass(slots=True)
+@dataclass()
 class LocalRepository:
     """Represents a lazily-downloaded clone of a Hugging Face repository."""
 
@@ -64,7 +64,7 @@ class LocalRepository:
     path: Path | None = None
 
 
-@dataclass(slots=True)
+@dataclass()
 class ModelContext:
     """Aggregated information available to metrics about a model."""
 
@@ -79,7 +79,7 @@ class ModelContext:
     commit_total: int
 
 
-@dataclass(slots=True)
+@dataclass()
 class MetricResult:
     """Result of evaluating a single metric."""
 
@@ -88,7 +88,7 @@ class MetricResult:
     latency_ms: int
 
 
-@dataclass(slots=True)
+@dataclass()
 class MetricFailure:
     """Represents a metric failure captured without aborting the run."""
 
@@ -96,7 +96,7 @@ class MetricFailure:
     message: str
 
 
-@dataclass(slots=True)
+@dataclass()
 class EvaluationOutcome:
     """Holds the collection of metric results and failures for a model."""
 
