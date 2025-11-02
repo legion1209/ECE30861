@@ -6,7 +6,7 @@ from typing import Literal
 from urllib.parse import urlparse
 
 
-@dataclass(slots=True)
+@dataclass()
 class ParsedUrl:
     """Structured representation of an artifact URL."""
 

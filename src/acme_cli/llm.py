@@ -17,7 +17,7 @@ class LlmUnavailable(RuntimeError):
     """Raised when an LLM inference could not be completed."""
 
 
-@dataclass(slots=True)
+@dataclass()
 class LlmConfig:
     model: str = os.getenv("ACME_LLM_MODEL", DEFAULT_LLM_MODEL)
     token: str | None = os.getenv("HUGGINGFACEHUB_API_TOKEN") or os.getenv("HF_API_TOKEN")

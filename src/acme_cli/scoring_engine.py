@@ -10,7 +10,7 @@ from acme_cli.metrics.base import Metric
 from acme_cli.types import EvaluationOutcome, MetricResult, ModelContext, ScoreTarget
 
 
-@dataclass(slots=True)
+@dataclass()
 class ScoreSummary:
     context: ModelContext
     outcome: EvaluationOutcome
