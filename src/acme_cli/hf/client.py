@@ -12,7 +12,7 @@ from huggingface_hub.hf_api import DatasetInfo, ModelInfo, RepoFile
 from acme_cli.types import DatasetMetadata, ModelMetadata, RepoFile as RepoFileMetadata
 
 
-@dataclass(slots=True)
+@dataclass()
 class HuggingFaceConfig:
     """Configuration for :class:`HfClient`."""
 
