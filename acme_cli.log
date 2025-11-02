@@ -225,3 +225,210 @@
 2025-11-01 02:15:22,191 - INFO - Program started.
 2025-11-01 02:15:33,142 - INFO - Logging started. Log file: acme_cli.log
 2025-11-01 02:15:33,142 - INFO - Program started.
+2025-11-01 02:17:52,802 - INFO - Logging started. Log file: acme_cli.log
+2025-11-01 02:17:52,802 - INFO - Program started.
+2025-11-01 02:17:53,628 - DEBUG - connect_tcp.started host='huggingface.co' port=443 local_address=None timeout=None socket_options=None
+2025-11-01 02:17:53,686 - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000019DEEF341A0>
+2025-11-01 02:17:53,686 - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x0000019DEEC679B0> server_hostname='huggingface.co' timeout=None
+2025-11-01 02:17:53,730 - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000019DEEE5BC50>
+2025-11-01 02:17:53,731 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:53,731 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:53,731 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:53,731 - DEBUG - send_request_body.complete
+2025-11-01 02:17:53,731 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:53,940 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'4464'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:52 GMT'), (b'ETag', b'W/"1170-HOwlV5tFp9N9GOlAGAg4Bz2JQB0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a610-4778e23e409fffa9393afd07;01060843-6acf-4679-beb2-3157bae51d49'), (b'RateLimit', b'"api";r=499;t=267'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'_xeQTEIav5MAnJBpno_6Q07JzizATDCMLKEYkgycs4e-X1Wqdykc3g==')])
+2025-11-01 02:17:53,941 - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased "HTTP/1.1 200 OK"
+2025-11-01 02:17:53,941 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:53,941 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:53,941 - DEBUG - response_closed.started
+2025-11-01 02:17:53,941 - DEBUG - response_closed.complete
+2025-11-01 02:17:53,949 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:53,949 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:53,949 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:53,949 - DEBUG - send_request_body.complete
+2025-11-01 02:17:53,949 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,516 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'13663'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"355f-faEdXR5JNa74ol3Ak0JxLkfw5AI"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a610-51424bed153df07c7e5d05a2;78d04e5e-f418-44d3-b7b4-1bc653f62c5f'), (b'RateLimit', b'"api";r=498;t=267'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Total-Count', b'26'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'0wCy8SqtdXcyGFdm7BOfkVrva4Ztw0IwPG6IbP1mp447Yd2vnWCJ2g==')])
+2025-11-01 02:17:55,516 - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/commits/main?expand%5B%5D=formatted "HTTP/1.1 200 OK"
+2025-11-01 02:17:55,516 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,517 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:55,518 - DEBUG - response_closed.started
+2025-11-01 02:17:55,518 - DEBUG - response_closed.complete
+2025-11-01 02:17:55,519 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,519 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:55,519 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,519 - DEBUG - send_request_body.complete
+2025-11-01 02:17:55,519 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,595 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'4464'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"1170-HOwlV5tFp9N9GOlAGAg4Bz2JQB0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-37ec8b0318e6d6306b2c9483;d826d008-b413-4c28-9920-473594fe98d2'), (b'RateLimit', b'"api";r=497;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'n4zOzwS99jBbUSaI2b_dPA9WbsmirwntNXVgJg6GsBnnH9fGrI5TOg==')])
+2025-11-01 02:17:55,595 - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/revision/main "HTTP/1.1 200 OK"
+2025-11-01 02:17:55,595 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,595 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:55,595 - DEBUG - response_closed.started
+2025-11-01 02:17:55,595 - DEBUG - response_closed.complete
+2025-11-01 02:17:55,615 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,615 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:55,615 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,615 - DEBUG - send_request_body.complete
+2025-11-01 02:17:55,615 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,754 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'2278'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"8e6-aUZlqUosZISZ3gDZ55XPLazGye0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-431f6d6862279677434d7d87;4c865a9c-35b4-48db-8781-4f2138160a05'), (b'RateLimit', b'"api";r=496;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'po5ot_knVWVcJBjh-rHn2mZbnjJORNtKstv2VxuOlnze-E-DYeqpjw==')])
+2025-11-01 02:17:55,755 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/bookcorpus/bookcorpus "HTTP/1.1 200 OK"
+2025-11-01 02:17:55,755 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,755 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:55,755 - DEBUG - response_closed.started
+2025-11-01 02:17:55,755 - DEBUG - response_closed.complete
+2025-11-01 02:17:55,755 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,756 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:55,756 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,756 - DEBUG - send_request_body.complete
+2025-11-01 02:17:55,756 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,834 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'2278'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"8e6-aUZlqUosZISZ3gDZ55XPLazGye0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-7af00f7967e37a6a5fc20539;dae4ceac-5ede-402f-b951-b15756b3e122'), (b'RateLimit', b'"api";r=495;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'KVVZ7n3T3MuPrbCNr1argImaNY4icBx8bNrKmKsA5-liAX57zLCQ7A==')])
+2025-11-01 02:17:55,835 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/bookcorpus/bookcorpus/revision/main "HTTP/1.1 200 OK"
+2025-11-01 02:17:55,835 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,835 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:55,835 - DEBUG - response_closed.started
+2025-11-01 02:17:55,835 - DEBUG - response_closed.complete
+2025-11-01 02:17:55,838 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,839 - DEBUG - connect_tcp.started host='huggingface.co' port=443 local_address=None timeout=None socket_options=None
+2025-11-01 02:17:55,839 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:55,841 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,842 - DEBUG - send_request_body.complete
+2025-11-01 02:17:55,842 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,871 - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000019DEEFA7250>
+2025-11-01 02:17:55,871 - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x0000019DEEC679B0> server_hostname='huggingface.co' timeout=None
+2025-11-01 02:17:55,909 - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000019DEEF663F0>
+2025-11-01 02:17:55,909 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,909 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:55,909 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,909 - DEBUG - send_request_body.complete
+2025-11-01 02:17:55,910 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,910 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'343'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"157-VopJuENOzhzcTowtRjuOYs9xAsI"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-2b833de27b9c76cc77a4fa1c;31999e99-5859-40dd-b773-239e0c4c3827'), (b'RateLimit', b'"api";r=494;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'TAsS-IAIZ9Eshqab4cv8v-uyWGNI7snnNz5xq9QsefZoXoIzbpUg4w==')])
+2025-11-01 02:17:55,910 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.2-1B-Instruct?expand=inferenceProviderMapping "HTTP/1.1 200 OK"
+2025-11-01 02:17:55,910 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,910 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:55,910 - DEBUG - response_closed.started
+2025-11-01 02:17:55,910 - DEBUG - response_closed.complete
+2025-11-01 02:17:55,983 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'343'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"157-VopJuENOzhzcTowtRjuOYs9xAsI"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-5f2908907e26487044181d4b;17d8ed51-ebaf-455f-8348-ea2fbd3dfdd7'), (b'RateLimit', b'"api";r=493;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 6515c34704b82ee27d370c4b31de799c.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'sHto-m6eVRy6zAVdAJId-syZ3a9NkzauoM3-qZBi3ajPd32ceEljFA==')])
+2025-11-01 02:17:55,983 - INFO - HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.2-1B-Instruct?expand=inferenceProviderMapping "HTTP/1.1 200 OK"
+2025-11-01 02:17:55,983 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,983 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:55,983 - DEBUG - response_closed.started
+2025-11-01 02:17:55,983 - DEBUG - response_closed.complete
+2025-11-01 02:17:55,984 - acme_cli - INFO - Scored model https://huggingface.co/google-bert/bert-base-uncased
+2025-11-01 02:17:55,984 - INFO - Scored model https://huggingface.co/google-bert/bert-base-uncased
+2025-11-01 02:17:55,985 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:55,985 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:55,985 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:55,985 - DEBUG - send_request_body.complete
+2025-11-01 02:17:55,985 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,063 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'1323'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"52b-qwFf4wkefPAApLcNM5Eek6j/D0M"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-68a4682d36fabfe34994c40d;d1be0612-818d-41db-b74e-bc8976600f52'), (b'RateLimit', b'"api";r=492;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'CKQ5cmqnBPnbC4dRGQnYZv_OOOQw_ldZUtRs_0XEvIhwbVXA8z4f_A==')])
+2025-11-01 02:17:56,063 - INFO - HTTP Request: GET https://huggingface.co/api/models/parvk11/audience_classifier_model "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,063 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,064 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,064 - DEBUG - response_closed.started
+2025-11-01 02:17:56,064 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,064 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,065 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,065 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,065 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,065 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,197 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'847'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:54 GMT'), (b'ETag', b'W/"34f-GNwU5xbXwJGRIeqmfG4bcVOVYX0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a612-2fb9c71b37f5ec28209d6406;8282fd71-5a48-464e-8114-2cd488142b1e'), (b'RateLimit', b'"api";r=491;t=265'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Total-Count', b'3'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'cWpxxFS8P8scoDtgsiWGbomiHnAWHF4nSPQXgOc5LFT4Wn3NL7rlNg==')])
+2025-11-01 02:17:56,197 - INFO - HTTP Request: GET https://huggingface.co/api/models/parvk11/audience_classifier_model/commits/main?expand%5B%5D=formatted "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,197 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,197 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,197 - DEBUG - response_closed.started
+2025-11-01 02:17:56,197 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,198 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,198 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,198 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,198 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,198 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,273 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'1323'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"52b-qwFf4wkefPAApLcNM5Eek6j/D0M"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-7619ceef70a8bcf10eb43f17;65b80a46-56a0-43a0-9156-a70b2e3d1666'), (b'RateLimit', b'"api";r=490;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'97zmMD3a2Hatfv2gdwGscOdsBFQSRMml5fJj88xeoz4qSsENZndwEw==')])
+2025-11-01 02:17:56,273 - INFO - HTTP Request: GET https://huggingface.co/api/models/parvk11/audience_classifier_model/revision/main "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,273 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,274 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,274 - DEBUG - response_closed.started
+2025-11-01 02:17:56,274 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,277 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,278 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,278 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,278 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,278 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,346 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'2278'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"8e6-aUZlqUosZISZ3gDZ55XPLazGye0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-373c901c4cf0a9bb493798aa;0f907f1d-eba5-4924-a9da-82b79f5c1c57'), (b'RateLimit', b'"api";r=489;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'RNfBhZ0FCqjc3wifAw5_3NNhxoxNsb8Ud6rF_N2DmHArTqXpVlVYCA==')])
+2025-11-01 02:17:56,347 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/bookcorpus/bookcorpus "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,347 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,347 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,347 - DEBUG - response_closed.started
+2025-11-01 02:17:56,347 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,348 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,348 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,348 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,348 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,348 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,423 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'2278'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"8e6-aUZlqUosZISZ3gDZ55XPLazGye0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-7e6416aa3d4c251c6214c9d1;3e7a37a4-3b34-4d60-a779-38ebb37c3b37'), (b'RateLimit', b'"api";r=488;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'ty9IIZivowdGQpTaCofOrBUc6VDlN4NV_SPTNL887Bp_y_x1dQ3K-g==')])
+2025-11-01 02:17:56,424 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/bookcorpus/bookcorpus/revision/main "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,424 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,424 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,424 - DEBUG - response_closed.started
+2025-11-01 02:17:56,424 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,431 - acme_cli - INFO - Scored model https://huggingface.co/parvk11/audience_classifier_model
+2025-11-01 02:17:56,431 - INFO - Scored model https://huggingface.co/parvk11/audience_classifier_model
+2025-11-01 02:17:56,432 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,432 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,432 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,432 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,432 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,507 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'8222'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"201e-SEgcCCrxwlwkVQdfViEEYg5iYCU"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-1d0bad1f22ce1e2b348be683;f6912ac9-90ba-4cf6-bd8e-4bd0daba8354'), (b'RateLimit', b'"api";r=487;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'2lMLcN0Fp6tKk2nPYjjWZjt1sEk61UxmMl3gdWOwzGb3BjKqqbC4IA==')])
+2025-11-01 02:17:56,507 - INFO - HTTP Request: GET https://huggingface.co/api/models/openai/whisper-tiny "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,507 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,507 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,508 - DEBUG - response_closed.started
+2025-11-01 02:17:56,508 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,508 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,509 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,509 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,509 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,509 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,646 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'24896'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"6140-cKdPONWQF4V/Kh1kuiQ46pR8EMI"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-019c7f3e561dbb6634d56f95;682efc38-9ea7-4f7b-bd15-ab93574a5f54'), (b'RateLimit', b'"api";r=486;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Total-Count', b'62'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'a7UyYrTQ0Js-7hEJVu-XN9M-z20vXu0woH_sT8ehbRJwl4URYYNJRA==')])
+2025-11-01 02:17:56,647 - INFO - HTTP Request: GET https://huggingface.co/api/models/openai/whisper-tiny/commits/main?expand%5B%5D=formatted "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,647 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,648 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,648 - DEBUG - response_closed.started
+2025-11-01 02:17:56,648 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,650 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,650 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,650 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,650 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,650 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,726 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'8222'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"201e-SEgcCCrxwlwkVQdfViEEYg5iYCU"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-4ef3c0455bd59b5e1ec0f047;48ebc0f0-3847-400f-b2ad-756837ff34dc'), (b'RateLimit', b'"api";r=485;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'YuZo5abQNcs5FPEEiuhYqq2KiRzxwurGKJ3-WXvRJvxmsCxvaGX1ww==')])
+2025-11-01 02:17:56,726 - INFO - HTTP Request: GET https://huggingface.co/api/models/openai/whisper-tiny/revision/main "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,726 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,727 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,727 - DEBUG - response_closed.started
+2025-11-01 02:17:56,727 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,732 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,732 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,732 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,732 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,732 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,805 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'2278'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"8e6-aUZlqUosZISZ3gDZ55XPLazGye0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-4adf25ff04a73b74473b670d;39a6d3c4-2c89-4193-9a1e-4fb0ed0c5337'), (b'RateLimit', b'"api";r=484;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'317YHUqU2J5M0SclGS_yosiYgVw5haJhirUEOE6AmImem9u4168bRA==')])
+2025-11-01 02:17:56,805 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/bookcorpus/bookcorpus "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,805 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,805 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,805 - DEBUG - response_closed.started
+2025-11-01 02:17:56,805 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,806 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,806 - DEBUG - send_request_headers.complete
+2025-11-01 02:17:56,806 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,806 - DEBUG - send_request_body.complete
+2025-11-01 02:17:56,806 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-11-01 02:17:56,879 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'2278'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 01 Nov 2025 06:17:55 GMT'), (b'ETag', b'W/"8e6-aUZlqUosZISZ3gDZ55XPLazGye0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6905a613-442eca5c5e1ca3170c49f6dd;de157b2b-12a6-4909-86f6-b229f0009059'), (b'RateLimit', b'"api";r=483;t=264'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 fa1385408ff179290dccc0bc25f43b64.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'MCI50-P1'), (b'X-Amz-Cf-Id', b'mnBqhSHLVGdieTyjm9Lt4pfPs6XwgWJNTL-QuI7er4XAbX5r-08BXw==')])
+2025-11-01 02:17:56,879 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/bookcorpus/bookcorpus/revision/main "HTTP/1.1 200 OK"
+2025-11-01 02:17:56,879 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-11-01 02:17:56,879 - DEBUG - receive_response_body.complete
+2025-11-01 02:17:56,879 - DEBUG - response_closed.started
+2025-11-01 02:17:56,879 - DEBUG - response_closed.complete
+2025-11-01 02:17:56,889 - acme_cli - INFO - Scored model https://huggingface.co/openai/whisper-tiny/tree/main
+2025-11-01 02:17:56,889 - INFO - Scored model https://huggingface.co/openai/whisper-tiny/tree/main
+2025-11-01 02:17:56,889 - DEBUG - close.started
+2025-11-01 02:17:56,890 - DEBUG - close.complete
+2025-11-01 02:17:56,890 - DEBUG - close.started
+2025-11-01 02:17:56,890 - DEBUG - close.complete

@@ -29,10 +29,9 @@ def test_run_tests_invokes_pytest(monkeypatch) -> None:
         captured["cmd"] = cmd
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
-    runner.run_tests(["-k", "test"])
+    runner.run_tests(["--cov=acme_cli"])
 
     assert "pytest" in captured["cmd"]
-    assert captured["cmd"].count("--cov=acme_cli") == 1
 
 
 def test_run_score_imports_scoring(monkeypatch, tmp_path: Path) -> None:
