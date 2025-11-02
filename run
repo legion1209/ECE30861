@@ -52,14 +52,12 @@ def main(argv: list[str] | None = None) -> int:
     log_file_path = os.getenv('LOG_FILE')
 
     if not log_file_path:
-        print("Error: The environment variable LOG_FILE is not set.", file=sys.stderr)
         sys.exit(1)  # Exit if the environment variable is not set
 
     log_file = Path(log_file_path)
 
     # Check if the log file exists, and create it if it doesn't
     if not log_file.exists():
-        print(f"Log file {log_file} does not exist. Creating it now...", file=sys.stderr)
         initialize_logging(log_file)  # This will create the file and initialize logging
     else:
         # If file exists, just initialize logging
@@ -89,5 +87,4 @@ if __name__ == "__main__":  # pragma: no cover - exercised via acceptance
     try:
         raise SystemExit(main())
     except CommandError as exc:  # pragma: no cover - defensive
-        print(exc, file=sys.stderr)
         raise SystemExit(1)
