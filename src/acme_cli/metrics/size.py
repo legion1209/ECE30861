@@ -34,7 +34,6 @@ class SizeMetric(Metric):
     def _collect_weight_bytes(path: Path) -> int:
         total = 0                             
         for file in path.rglob("*"):
-            print(file)
             try:
                 file_size = file.stat().st_size
                 total += file_size
