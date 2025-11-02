@@ -56,6 +56,7 @@ def _checked_run(cmd: Sequence[str]) -> int:
             env['PATH'] = str(USER_BIN) + os.pathsep + env.get('PATH', '')
 
         subprocess.run(cmd, check=True, env=env)
+        print(f"Command {' '.join(cmd)} executed successfully.")
     except subprocess.CalledProcessError as exc:  # pragma: no cover - defensive
         raise CommandError(str(exc)) from exc
     return 0

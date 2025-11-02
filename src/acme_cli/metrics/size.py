@@ -23,7 +23,6 @@ class SizeMetric(Metric):
     def compute(self, context: ModelContext) -> dict[str, float]:
         local_repo = context.local_repo
         total_bytes = 0
-        print(local_repo, local_repo.path)
         if local_repo and local_repo.path:
             total_bytes = SizeMetric._collect_weight_bytes(local_repo.path)
         if total_bytes == 0 and context.model_metadata:
