@@ -50,7 +50,7 @@ def run_score(url_file: Path, cli_args: Sequence[str] | None = None) -> int:
 def _checked_run(cmd: Sequence[str]) -> int:
     """Run *cmd* and raise :class:`CommandError` on failure."""
     try:
-        subprocess.run(cmd, check=True)  # noqa: S603, S607
+        subprocess.run(cmd, check=True, env = os.environ)  # noqa: S603, S607
     except subprocess.CalledProcessError as exc:  # pragma: no cover - defensive
         raise CommandError(str(exc)) from exc
     return 0
