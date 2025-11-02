@@ -47,7 +47,7 @@ def score_file(url_file: Path, cli_args: Sequence[str]) -> None:
 
     context_builder = ContextBuilder()
     scorer = ModelScorer(context_builder=context_builder)
-
+    
     for target in targets:
         record = _score_target(scorer, target)
         LOGGER.info("Scored model %s", target.model_url)

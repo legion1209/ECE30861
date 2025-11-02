@@ -87,4 +87,5 @@ if __name__ == "__main__":  # pragma: no cover - exercised via acceptance
     try:
         raise SystemExit(main())
     except CommandError as exc:  # pragma: no cover - defensive
+        print(exc, file=sys.stderr)
         raise SystemExit(1)

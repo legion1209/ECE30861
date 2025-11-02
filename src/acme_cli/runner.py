@@ -10,7 +10,7 @@ from typing import Sequence
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
-
+USER_BIN = Path.home() / '.local' / 'bin'
 
 class CommandError(RuntimeError):
     """Raised when a subprocess command fails."""
@@ -46,11 +46,16 @@ def run_score(url_file: Path, cli_args: Sequence[str] | None = None) -> int:
     score_file(url_file, cli_args or [])
     return 0
 
-
 def _checked_run(cmd: Sequence[str]) -> int:
-    """Run *cmd* and raise :class:`CommandError` on failure."""
     try:
-        subprocess.run(cmd, check=True)  # noqa: S603, S607
+        # Create a copy of the current environment
+        env = os.environ.copy()
+        
+        # Explicitly add the user's bin directory to the PATH for the subprocess
+        if USER_BIN.exists():
+            env['PATH'] = str(USER_BIN) + os.pathsep + env.get('PATH', '')
+
+        subprocess.run(cmd, check=True, env=env)
     except subprocess.CalledProcessError as exc:  # pragma: no cover - defensive
         raise CommandError(str(exc)) from exc
     return 0
