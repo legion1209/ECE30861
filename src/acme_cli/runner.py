@@ -27,7 +27,7 @@ def run_install(extra_args: Sequence[str] | None = None) -> int:
 def run_tests(pytest_args: Sequence[str] | None = None) -> int:
     """Execute the test suite with coverage enabled (when flags are provided)."""
     args: list[str] = [
-        sys.executable,
+        "python",
         "-m",
         "pytest",
     ]
