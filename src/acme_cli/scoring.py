@@ -51,7 +51,7 @@ def score_file(url_file: Path, cli_args: Sequence[str]) -> None:
     for target in targets:
         record = _score_target(scorer, target)
         LOGGER.info("Scored model %s", target.model_url)
-        print(json.dumps(record, ensure_ascii=False))
+        print(json.dumps(record, ensure_ascii=False, separators=(",", ":")))
 
 
 def _score_target(scorer: ModelScorer, target: ScoreTarget) -> dict[str, Any]:

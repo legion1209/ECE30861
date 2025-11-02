@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Mapping, MutableMapping
 
-ModelCategory = Literal["MODEL", "DATASET", "CODE"]
+ModelCategory = Literal["CODE", "DATASET", "MODEL"]
 
 
 @dataclass(slots=True)

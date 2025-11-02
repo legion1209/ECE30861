@@ -58,6 +58,7 @@ def _checked_run(cmd: Sequence[str]) -> int:
         subprocess.run(cmd, check=True, env=env)
         print(f"Command {' '.join(cmd)} executed successfully.")
     except subprocess.CalledProcessError as exc:  # pragma: no cover - defensive
+        print(f"Command {' '.join(cmd)} failed with exit code {exc.returncode}.")
         raise CommandError(str(exc)) from exc
     return 0
 
