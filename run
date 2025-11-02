@@ -67,7 +67,6 @@ def main(argv: list[str] | None = None) -> int:
 
     # Continue with the rest of the program
     logging.info("Program started.")
-    print(f"Log file {log_file} exists. Continuing the program...")
 
     # Example: Additional program logic can go here.
     # logging.info("Running some part of the program...")
