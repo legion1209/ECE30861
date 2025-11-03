@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: us-east-1
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t ${{ env.ECR_REPO }}:$IMAGE_TAG .
+          docker push ${{ env.ECR_REPO }}:$IMAGE_TAG
+      - name: Deploy on EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ env.ECR_REPO }}:${{ github.sha }}
+            docker stop acme || true
+            docker rm acme || true
+            docker run -d --name acme -p 80:80 ${{ env.ECR_REPO }}:${{ github.sha }}
