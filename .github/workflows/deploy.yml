@@ -8,23 +8,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    env:
+      ECR_REPO: ${{ secrets.ECR_REPOSITORY }}
+      
     permissions:
       id-token: write
       contents: read
+      
     steps:
-      - uses: actions/checkout@v3
-      - uses: aws-actions/configure-aws-credentials@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: us-east-1
+          
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        
       - name: Build and push Docker image
         run: |
           IMAGE_TAG=${{ github.sha }}
           docker build -t ${{ env.ECR_REPO }}:$IMAGE_TAG .
           docker push ${{ env.ECR_REPO }}:$IMAGE_TAG
+          
       - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
