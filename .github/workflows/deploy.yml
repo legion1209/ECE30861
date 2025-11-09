@@ -46,4 +46,4 @@ jobs:
             docker pull ${{ env.ECR_REPO }}:${{ github.sha }}
             docker stop acme || true
             docker rm acme || true
-            docker run -d --name acme -p 80:80 ${{ env.ECR_REPO }}:${{ github.sha }}
+            docker run -d --name acme -p 8000:8000 ${{ env.ECR_REPO }}:${{ github.sha }}
