@@ -5,3 +5,4 @@
 build/
 acme_cli.log
 cli2.py
+node_modules/
