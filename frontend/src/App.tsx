@@ -1,6 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
+declare global {
+  // Provide a minimal JSX.IntrinsicElements so this TSX file compiles
+  // if project-level React typings or tsconfig JSX settings are missing.
+  // This is a localized fix; prefer installing @types/react or setting
+  // "jsx": "react-jsx" in tsconfig.json for a project-wide solution.
+  namespace JSX {
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
+  }
+}
+
 /**
  * ECE 30861 / 46100 — Frontend Starter (React + TypeScript + Tailwind)
  * Wired to: ece461_fall_2025_openapi_spec.yaml (OpenAPI 3.0.2)
@@ -20,7 +32,7 @@ import type { FormEvent } from "react";
  *    npm create vite@latest model-registry-ui -- --template react-ts
  *    cd model-registry-ui && npm i && npm i -D tailwindcss postcss autoprefixer
  *    npx tailwindcss init -p
- *    - Configure Tailwind content in tailwind.config.js to scan src/**/*.tsx
+ *    - Configure Tailwind content in tailwind.config.js to scan src/***.tsx
  *    - Add Tailwind directives to src/index.css: @tailwind base; @tailwind components; @tailwind utilities;
  * 2) Replace src/App.tsx contents with this file, or create src/App.tsx and export default App.
  * 3) Define API base in .env: VITE_API_BASE=https://YOUR_BACKEND_HOST

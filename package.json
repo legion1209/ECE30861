@@ -1,8 +1,13 @@
 {
   "dependencies": {
     "express": "^5.1.0",
+    "react": "^18.3.1",
     "swagger-ui": "^5.30.2",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2"
   }
 }
