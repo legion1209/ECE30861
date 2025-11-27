@@ -25,25 +25,33 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image # Tell SAM to use a container image
-      ImageUri: !Ref ImageUriParameter # Reference the URI passed from GitHub Actions
+      ImageUri: 
+        Ref: ImageUriParameter
+        # Reference the URI passed from GitHub Actions
       Timeout: 1800 # 30 minutes max execution time
       MemorySize: 4096 # Allocate more memory for model scoring
       Policies:
         # Grants permissions to read the SQS queue
-        - SQSPollerPolicy: !Ref ScoringQueue
+        - SQSPollerPolicy: 
+            Ref: ScoringQueue
         # Grants permissions to read the model sources from S3
         - S3ReadPolicy:
-            BucketName: !Ref S3ArtifactBucketName
+            BucketName:
+              Ref: S3ArtifactBucketName
         # Grants permissions to update the DynamoDB table (the final link!)
         - DynamoDBCrudPolicy:
-            TableName: !Ref DynamoDBTableName
+            TableName: 
+              Ref: DynamoDBTableName
       Environment:
         Variables:
-          DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
-          S3_ARTIFACT_BUCKET: !Ref S3ArtifactBucketName
+          DYNAMODB_TABLE_NAME: 
+            Ref: DynamoDBTableName
+          S3_ARTIFACT_BUCKET: 
+            Ref: S3ArtifactBucketName
       Events:
         ScoringQueueEvent:
           Type: SQS
           Properties:
-            Queue: !GetAtt ScoringQueue.Arn
+            Queue: 
+              GetAtt: ScoringQueue.Arn
             BatchSize: 1 # Process one job at a time
