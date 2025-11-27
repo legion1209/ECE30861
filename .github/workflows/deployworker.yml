@@ -1,0 +1,63 @@
+name: Deploy Worker Lambda
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scoring_worker/**'
+      - 'src/acme_cli/scoring.py' # Deploy if core scoring logic changes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      ECR_REPO: ${{ secrets.ECR_REPO }} # e.g., 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-worker
+      AWS_REGION: us-east-1
+      SQS_QUEUE_NAME: ECE461-Scoring-Queue # Name defined in backend-api/template.yaml
+      
+    permissions:
+      id-token: write
+      contents: read
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Configure OIDC AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }} 
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      # --- Docker Build and Push (The long part) ---
+      - name: Build and push Docker image
+        # Note: This assumes the Dockerfile is in scoring-worker/ and you are running this 
+        # command from the root 'phase2' directory.
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          # Build the image based on the scoring-worker/Dockerfile
+          docker build -t ${{ env.ECR_REPO }}:$IMAGE_TAG -f scoring-worker/Dockerfile .
+          docker push ${{ env.ECR_REPO }}:$IMAGE_TAG
+          echo "IMAGE_URI=${{ env.ECR_REPO }}:$IMAGE_TAG" >> $GITHUB_ENV
+          
+      # --- SAM Deployment (The final link) ---
+      - name: Install SAM CLI
+        run: pip install aws-sam-cli
+        
+      - name: Deploy Worker Lambda Stack
+        run: |
+          sam deploy \
+            --template-file scoring-worker/template.yaml \
+            --stack-name ECE461-ModelWorker-Stack \
+            --s3-bucket ece461-sam-deployment-artifacts \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              ImageUriParameter=${{ env.IMAGE_URI }} \
+              DynamoDBTableName=ECE461Artifacts \
+              S3ArtifactBucketName=ece461-model-sources \
+              ScoringQueueName=${{ env.SQS_QUEUE_NAME }} # Pass the name defined in the API stack

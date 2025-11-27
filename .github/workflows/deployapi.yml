@@ -1,0 +1,52 @@
+name: Deploy API Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend-api/**'
+      - 'src/acme_cli/database_service.py' # Deploy if shared logic changes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      AWS_REGION: us-east-1
+      
+    permissions:
+      id-token: write
+      contents: read
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Configure OIDC AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }} 
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install SAM CLI
+        run: pip install aws-sam-cli
+        
+      - name: Build Serverless Application (API)
+        # This builds the API Lambda, creating the ZIP file package
+        run: sam build -t backend-api/template.yaml
+        
+      - name: Deploy API Stack to AWS
+        run: |
+          sam deploy \
+            --template-file .aws-sam/build/template.yaml \
+            --stack-name ECE461-Api-Stack \
+            --s3-bucket ece461-sam-deployment-artifacts \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              S3ArtifactBucketName=ece461-model-sources
