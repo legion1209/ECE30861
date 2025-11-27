@@ -47,7 +47,7 @@ jobs:
             docker stop acme || true
             docker rm acme || true
             docker run -d --name acme -p 8000:8000 ${{ env.ECR_REPO }}:${{ github.sha }}
-            
+
       # --- SAM/CloudFormation Deployment ---
       - name: Install SAM CLI
         run: pip install aws-sam-cli
