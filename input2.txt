@@ -1,1 +1,0 @@
-,,https://huggingface.co/openai/whisper-tiny/tree/main
