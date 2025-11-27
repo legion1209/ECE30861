@@ -1,0 +1,66 @@
+# scoring-worker/template.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Asynchronous Worker Lambda for Model Scoring
+
+# These parameters are passed from the GitHub Actions YAML
+Parameters:
+  ImageUriParameter:
+    Type: String
+    Description: URI of the Docker image pushed to ECR (e.g., from github.sha).
+  DynamoDBTableName:
+    Type: String
+  S3ArtifactBucketName:
+    Type: String
+
+Resources:
+  # The SQS Queue (Assuming this is shared, or defined in the API stack)
+  # If the SQS Queue is defined here, it would be:
+  # ScoringQueue:
+  #   Type: AWS::SQS::Queue
+  #   Properties:
+  #     VisibilityTimeout: 1800 
+
+  # The Worker Lambda Function (Deployed from the ECR Image)
+  WorkerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageUri: 
+        Ref: ImageUriParameter # Image URI passed from CI/CD
+      Timeout: 1800 # 30 minutes max execution time for heavy scoring
+      MemorySize: 4096 # High memory for model loading
+      # --- Permissions ---
+      Policies:
+        # Grants permissions to read the SQS queue (replace QueueArn with your actual SQS ARN or Ref)
+        - Statement:
+            Effect: Allow
+            Action:
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+            Resource: 
+              Sub: "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name"
+        # Grants permissions to read the model sources from S3
+        - S3ReadPolicy:
+            BucketName: 
+              Ref: S3ArtifactBucketName
+        # Grants permissions to update the DynamoDB table (the final link!)
+        - DynamoDBCrudPolicy:
+            TableName: 
+              Ref: DynamoDBTableName
+      # --- Environment Variables for the Python handler ---
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: 
+            Ref: DynamoDBTableName
+          S3_ARTIFACT_BUCKET: 
+            Ref: S3ArtifactBucketName
+      # --- SQS Trigger Configuration ---
+      Events:
+        ScoringQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: 
+              Sub: "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name" # Replace with your queue ARN
+            BatchSize: 1 # Process one job at a time for long runs

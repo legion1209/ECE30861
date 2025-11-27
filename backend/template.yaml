@@ -1,0 +1,82 @@
+# backend-api/template.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Fast API Backend for Model Registry (API Gateway, SQS, DynamoDB)
+
+Parameters:
+  S3ArtifactBucketName:
+    Type: String
+    Description: Name of the S3 bucket where source files are uploaded.
+
+Resources:
+  # 1. DynamoDB Table (The persistent state)
+  ArtifactsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: ECE461Artifacts # Consistent name for both Lambdas
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # 2. SQS Queue (The asynchronous link)
+  ScoringQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ECE461-Scoring-Queue # Consistent name for both Lambdas
+      VisibilityTimeout: 1800 # 30 minutes for long scoring jobs
+
+  # 3. Frontend API Lambda (The synchronous handler)
+  ApiLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.11
+      Handler: handler.lambda_handler
+      CodeUri: . # Local folder deployment for the API
+      MemorySize: 256 # Small memory is fine, as it does no heavy work
+      Timeout: 10 # Short timeout, must respond quickly
+      Policies:
+        # Grants permissions to WRITE to SQS
+        - SQSSendMessagePolicy:
+            QueueUrl: 
+              Ref: ScoringQueue
+        # Grants permissions to READ/WRITE to DynamoDB
+        - DynamoDBCrudPolicy:
+            TableName: 
+              Ref: ArtifactsTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: 
+            Ref: ArtifactsTable
+          SQS_QUEUE_URL: 
+            Ref: ScoringQueue
+          S3_ARTIFACT_BUCKET: 
+            Ref: S3ArtifactBucketName
+
+      Events:
+        PostArtifact:
+          Type: Api
+          Properties:
+            Path: /artifact/model
+            Method: POST
+        GetRating:
+          Type: Api
+          Properties:
+            Path: /artifact/model/{id}/rate
+            Method: GET
+
+# --- OUTPUTS (For other stacks to reference) ---
+# This exports the ARN/URL so other stacks can reference it (the cleaner way)
+Outputs:
+  ScoringQueueArn:
+    Description: "The ARN of the SQS Scoring Queue"
+    Value: 
+      GetAtt: ScoringQueue.Arn
+    Export:
+      Name: ECE461-ScoringQueueArn
+  ScoringQueueName:
+    Description: "The Name of the SQS Scoring Queue"
+    Value: 
+      GetAtt: ScoringQueue.QueueName

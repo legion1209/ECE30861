@@ -1,0 +1,12 @@
+# backend-api/requirements.txt
+
+# AWS SDK for Python (necessary for S3, SQS, and DynamoDB operations)
+boto3
+
+# UUID is used in handler.py to generate artifact IDs
+# It is included in the Python standard library, but listing it is harmless.
+# uuid
+
+# Requests is a standard library for making HTTP requests, though the handler
+# uses the built-in urllib.request, which is sufficient.
+# requests
