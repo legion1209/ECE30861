@@ -8,6 +8,9 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
+RUN npm install --save-dev @types/react @types/react-dom
+RUN npm install -D tailwindcss postcss autoprefixer
+RUN npx tailwindcss init -p
 RUN npm install
 
 # Expose port

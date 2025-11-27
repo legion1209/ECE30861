@@ -47,3 +47,21 @@ jobs:
             docker stop acme || true
             docker rm acme || true
             docker run -d --name acme -p 8000:8000 ${{ env.ECR_REPO }}:${{ github.sha }}
+            
+      # --- SAM/CloudFormation Deployment ---
+      - name: Install SAM CLI
+        run: pip install aws-sam-cli
+        
+      - name: Deploy Worker Lambda Stack
+        uses: aws-actions/aws-sam-cli-action@v2
+        with:
+          # Your infrastructure definition file (defines the Lambda, SQS, and DB)
+          template_file: worker_service/template.yaml 
+          stack_name: ECE461-ModelWorker-Stack
+          s3_bucket: ece461-sam-deployment-artifacts # Must be an existing S3 bucket for staging
+          capabilities: CAPABILITY_IAM 
+          # Crucially, we pass the ECR image URI to SAM/CloudFormation
+          parameter_overrides: |
+            ImageUriParameter=${{ env.IMAGE_URI }}
+            DynamoDBTableName=Ece461Artifacts
+            S3ArtifactBucketName=ece461-model-sources
