@@ -1,0 +1,55 @@
+name: Deploy Frontend UI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'model-registry-ui/**'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      AWS_REGION: us-east-1
+      S3_BUCKET_NAME: ece461-frontend-website # Name of your S3 bucket hosting the UI
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_ID }}
+      
+    permissions:
+      id-token: write
+      contents: read
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Configure OIDC AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }} 
+          aws-region: ${{ env.AWS_REGION }}
+
+      # --- Build UI Assets ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install & Build UI
+        run: |
+          cd model-registry-frontend/
+          npm install
+          npm run build # Replace 'build' with the actual command that creates static files
+          
+      # --- Deploy to S3 ---
+      - name: Sync Build Folder to S3
+        run: |
+          aws s3 sync model-registry-frontend/dist s3://${{ env.S3_BUCKET_NAME }}/ \
+            --delete # Ensures old files are removed
+
+      - name: Invalidate CloudFront Cache
+        uses: aws-actions/invalidate-cloudfront-action@v3
+        with:
+          distribution-id: ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
+          paths: '/index.html'

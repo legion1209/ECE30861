@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      ECR_REPO: ${{ secrets.ECR_REPO }} # e.g., 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-worker
+      ECR_REPO: ${{ secrets.ECR_REPO }} 
       AWS_REGION: us-east-1
       SQS_QUEUE_NAME: ECE461-Scoring-Queue # Name defined in backend-api/template.yaml
       

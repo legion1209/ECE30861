@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'backend-api/**'
+      - 'backend/**'
       - 'src/acme_cli/database_service.py' # Deploy if shared logic changes
 
 jobs:
