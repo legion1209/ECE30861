@@ -6,15 +6,31 @@ import logging
 
 # Assuming your refactored logic is here:
 # (phase2/src/acme_cli/scoring.py -> calculate_and_report_score)
-from src.acme_cli.scoring import calculate_and_report_score 
+from src.acme_cli.scoring import calculate_and_report_score
+from src.acme_cli.runner import run_score
+from src.acme_cli.database_service import update_database
 
 # Initialize AWS clients outside the handler for better performance
 s3_client = boto3.client('s3')
 
 # Environment variables will be passed from the SAM template
 S3_BUCKET = os.environ.get('S3_ARTIFACT_BUCKET') 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger("acme_cli")
 LOGGER.setLevel(logging.INFO)
+
+def calculate_and_report_score(local_path, artifact_id):
+    # Calculate netscore
+    scores = run_score(local_path) 
+    
+    # Run threshold check
+    if scores.net_score < 0.5:
+        status = "FAILED"
+        LOGGER.info(f"Artifact {artifact_id} rejected due to low score: {scores.net_score}")
+    else:
+        status = "COMPLETE"
+        
+    # Update DB
+    update_database(artifact_id, status, scores)
 
 def lambda_handler(event, context):
     """

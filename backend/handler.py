@@ -19,15 +19,54 @@ LOGGER.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
     """Router for API Gateway events."""
+    # 1. First step: Extract HTTP method and path (Must be done first)
     http_method = event.get('httpMethod')
     path = event.get('path')
     
-    if http_method == 'POST' and path == '/artifact/model':
-        return handle_post_artifact(event)
-    elif http_method == 'GET' and '/artifact/model/' in path and '/rate' in path:
+    LOGGER.info(f"Received {http_method} request for {path}")
+
+    # 2. Routing logic
+    
+    # [A] Login authentication (PUT /authenticate)
+    if http_method == 'PUT' and path == '/authenticate':
+        return handle_authenticate(event)
+    
+    # [B] Upload Artifact (Supports model, dataset, code)
+    # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
+    # Example: /artifact/model, /artifact/dataset
+    if http_method == 'POST' and path.startswith('/artifact/'):
+        # Simple path parsing to get type. Example: path="/artifact/model" -> parts=['', 'artifact', 'model']
+        parts = path.strip('/').split('/')
+        if len(parts) == 2:
+            artifact_type = parts[1] # Gets 'model', 'dataset', or 'code'
+            return handle_post_artifact(event, artifact_type)
+
+    # [C] Check rating (GET /artifact/model/{id}/rate)
+    if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
         return handle_get_rating(event)
 
+    # [D] Download Artifact (GET /artifacts/{type}/{id}) - (Added based on your requirements)
+    if http_method == 'GET' and '/artifacts/' in path:
+        return handle_download_artifact(event)
+
+    # If no route matches
     return {'statusCode': 404, 'body': json.dumps({'error': 'Not found'})}
+
+def handle_authenticate(event):
+    # Implement authentication logic here
+    # Return a dummy token for demonstration purposes
+    try:
+        body = json.loads(event['body'])
+        if (body.get('user', {}).get('name') == "ece30861defaultadminuser" and 
+            body.get('secret', {}).get('password') == "correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE artifacts;"):
+            return {
+                'statusCode': 200,
+                'body': json.dumps("some-valid-token-string") # Return token
+            }
+        else:
+            return {'statusCode': 401, 'body': json.dumps({'error': 'Invalid credentials'})}
+    except Exception as e:
+        return {'statusCode': 400, 'body': json.dumps({'error': str(e)})}
 
 # --- POST /artifact/model (Job Submission) ---
 def handle_post_artifact(event):
@@ -95,3 +134,23 @@ def handle_get_rating(event):
     except Exception as e:
         LOGGER.error("Polling Error: %s", str(e), exc_info=True)
         return {'statusCode': 500, 'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})}
+    
+def handle_download_artifact(artifact_id):
+    # Check if artifact exists and is complete
+    # item = db.get_item(artifact_id)
+    # if not item or item.status == 'FAILED': return 404...
+    
+    # generate S3 Presigned URL for download
+    try:
+        s3_key = f"sources/{artifact_id}.zip"
+        url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': S3_BUCKET, 'Key': s3_key},
+            ExpiresIn=3600 # URL expires in 1 hour
+        )
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'metadata': {...}, 'data': {'url': url}}) # url for download
+        }
+    except Exception as e:
+        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
