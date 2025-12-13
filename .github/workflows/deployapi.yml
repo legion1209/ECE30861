@@ -46,7 +46,7 @@ jobs:
           sam deploy \
             --template-file .aws-sam/build/template.yaml \
             --stack-name ECE461-Api-Stack \
-            --s3-bucket ece461-sam-deployment-artifacts \
+            --s3-bucket acme-deploy-artifacts \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
-              S3ArtifactBucketName=ece461-model-sources
+              S3ArtifactBucketName=acme-data-artifacts

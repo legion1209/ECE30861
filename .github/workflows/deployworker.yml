@@ -54,10 +54,10 @@ jobs:
           sam deploy \
             --template-file scoring-worker/template.yaml \
             --stack-name ECE461-ModelWorker-Stack \
-            --s3-bucket ece461-sam-deployment-artifacts \
+            --s3-bucket acme-deploy-artifacts \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               ImageUriParameter=${{ env.IMAGE_URI }} \
               DynamoDBTableName=ECE461Artifacts \
-              S3ArtifactBucketName=ece461-model-sources \
+              S3ArtifactBucketName=acme-data-artifacts \
               ScoringQueueName=${{ env.SQS_QUEUE_NAME }} # Pass the name defined in the API stack
