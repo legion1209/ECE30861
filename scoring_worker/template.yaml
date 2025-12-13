@@ -5,13 +5,9 @@ Description: Asynchronous Worker Lambda for Model Scoring
 
 # These parameters are passed from the GitHub Actions YAML
 Parameters:
-  ImageUriParameter:
-    Type: String
-    Description: URI of the Docker image pushed to ECR (e.g., from github.sha).
-  DynamoDBTableName:
-    Type: String
   S3ArtifactBucketName:
     Type: String
+    Description: Name of the S3 bucket where source files are uploaded.
 
 Resources:
   # The SQS Queue (Assuming this is shared, or defined in the API stack)
@@ -22,14 +18,32 @@ Resources:
   #     VisibilityTimeout: 1800 
 
   # The Worker Lambda Function (Deployed from the ECR Image)
-  WorkerLambdaFunction:
+  ArtifactsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: ECE461Artifacts
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # 2. SQS Queue (The asynchronous link)
+  ScoringQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ECE461-Scoring-Queue
+      VisibilityTimeout: 1800 # 30 minutes for long scoring jobs
+
+  ApiLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      PackageType: Image
-      ImageUri: 
-        Ref: ImageUriParameter # Image URI passed from CI/CD
-      Timeout: 1800 # 30 minutes max execution time for heavy scoring
+      Runtime: python3.11
+      Handler: handler.lambda_handler
+      CodeUri: . # 確保這裡包含 handler.py 以及上一層的 src/
       MemorySize: 4096 # High memory for model loading
+      Timeout: 1800 # 30 minutes max execution time for heavy scoring
       # --- Permissions ---
       Policies:
         # Grants permissions to read the SQS queue (replace QueueArn with your actual SQS ARN or Ref)
