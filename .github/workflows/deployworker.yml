@@ -40,8 +40,8 @@ jobs:
         # command from the root 'phase2' directory.
         run: |
           IMAGE_TAG=${{ github.sha }}
-          # Build the image based on the scoring-worker/Dockerfile
-          docker build -t ${{ env.ECR_REPO }}:$IMAGE_TAG -f scoring-worker/Dockerfile .
+          # Build the image based on the scoring_worker/Dockerfile
+          docker build -t ${{ env.ECR_REPO }}:$IMAGE_TAG -f scoring_worker/Dockerfile .
           docker push ${{ env.ECR_REPO }}:$IMAGE_TAG
           echo "IMAGE_URI=${{ env.ECR_REPO }}:$IMAGE_TAG" >> $GITHUB_ENV
           
@@ -52,7 +52,7 @@ jobs:
       - name: Deploy Worker Lambda Stack
         run: |
           sam deploy \
-            --template-file scoring-worker/template.yaml \
+            --template-file scoring_worker/template.yaml \
             --stack-name ECE461-ModelWorker-Stack \
             --s3-bucket acme-deploy-artifacts \
             --capabilities CAPABILITY_IAM \
