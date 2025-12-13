@@ -39,7 +39,7 @@ jobs:
         
       - name: Build Serverless Application (API)
         # This builds the API Lambda, creating the ZIP file package
-        run: sam build -t backend-api/template.yaml
+        run: sam build -t backend/template.yaml
         
       - name: Deploy API Stack to AWS
         run: |

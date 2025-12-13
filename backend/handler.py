@@ -69,7 +69,7 @@ def handle_authenticate(event):
         return {'statusCode': 400, 'body': json.dumps({'error': str(e)})}
 
 # --- POST /artifact/model (Job Submission) ---
-def handle_post_artifact(event):
+def handle_post_artifact(event, artifact_type):
     try:
         body = json.loads(event['body'])
         source_url = body.get('url')
@@ -77,7 +77,7 @@ def handle_post_artifact(event):
             return {'statusCode': 400, 'body': json.dumps({'error': 'Missing source URL'})}
 
         artifact_id = str(uuid.uuid4())
-        s3_key = f"sources/{artifact_id}.zip"
+        s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
 
         # 1. Download and Upload to S3
         with urllib.request.urlopen(source_url) as response:
@@ -92,19 +92,24 @@ def handle_post_artifact(event):
         create_artifact(artifact_id, source_url)
 
         # 3. Send message to SQS (The ASYNCHRONOUS link)
-        sqs_client.send_message(
-            QueueUrl=SQS_URL,
-            MessageBody=json.dumps({
-                'artifact_id': artifact_id,
-                's3_bucket': S3_BUCKET,
-                's3_key': s3_key
-            })
-        )
+        if artifact_type == 'model':
+            sqs_client.send_message(
+                QueueUrl=SQS_URL,
+                MessageBody=json.dumps({
+                    'artifact_id': artifact_id,
+                    's3_bucket': S3_BUCKET,
+                    's3_key': s3_key,
+                    'type': artifact_type
+                })
+            )
         
-        # 4. Return 202 Accepted response immediately
+        # 4. Return 201 Accepted response immediately
         return {
-            'statusCode': 202,
-            'body': json.dumps({'id': artifact_id, 'status': 'Evaluation accepted and deferred.'})
+            'statusCode': 201,
+            'body': json.dumps({
+                'metadata': {'id': artifact_id, 'name': 'unknown', 'type': artifact_type},
+                'data': {'url': source_url}
+            })
         }
     except Exception as e:
         LOGGER.error("API Error: %s", str(e), exc_info=True)
@@ -135,14 +140,25 @@ def handle_get_rating(event):
         LOGGER.error("Polling Error: %s", str(e), exc_info=True)
         return {'statusCode': 500, 'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})}
     
-def handle_download_artifact(artifact_id):
+def handle_download_artifact(event):
     # Check if artifact exists and is complete
     # item = db.get_item(artifact_id)
     # if not item or item.status == 'FAILED': return 404...
     
     # generate S3 Presigned URL for download
     try:
-        s3_key = f"sources/{artifact_id}.zip"
+        # path: /artifacts/{type}/{id}
+        path = event.get('path')
+        parts = path.strip('/').split('/')
+
+        if len(parts) >= 3:
+            artifact_type = parts[1]
+            artifact_id = parts[2]
+        else:
+            return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
+        
+        s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
+        
         url = s3_client.generate_presigned_url(
             'get_object',
             Params={'Bucket': S3_BUCKET, 'Key': s3_key},
@@ -154,3 +170,10 @@ def handle_download_artifact(artifact_id):
         }
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+
+def handle_search_artifacts(event):
+    # Return empty list for now
+    return {
+        'statusCode': 200,
+        'body': json.dumps([])
+    }
