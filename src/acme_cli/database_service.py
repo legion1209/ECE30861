@@ -3,7 +3,6 @@ import boto3
 from typing import Any, Mapping
 from decimal import Decimal
 import time
-timestamp = Decimal(str(time.time()))
 
 # Initialize DynamoDB client outside the functions for Lambda performance
 dynamodb = boto3.resource('dynamodb')
@@ -22,12 +21,14 @@ def create_artifact(artifact_id: str, url: str) -> None:
     Creates the initial artifact record with PENDING status.
     Called by the API Lambda (backend-api/handler.py).
     """
+    current_timestamp = Decimal(str(time.time()))
+    
     table.put_item(
         Item={
             'id': artifact_id, # Primary Key
             'url': url,
             'status': 'PENDING',
-            'timestamp': timestamp # Record submission time
+            'timestamp': current_timestamp 
         }
     )
 

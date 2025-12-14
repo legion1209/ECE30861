@@ -185,7 +185,7 @@ def handle_download_artifact(event):
         )
         return {
             'statusCode': 200,
-            'body': json.dumps({'metadata': {...}, 'data': {'url': url}}) # url for download
+            'body': json.dumps({'metadata': {}, 'data': {'url': url}}) # url for download
         }
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
