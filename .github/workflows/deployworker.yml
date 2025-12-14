@@ -55,6 +55,7 @@ jobs:
             --template-file scoring_worker/template.yaml \
             --stack-name ECE461-ModelWorker-Stack \
             --s3-bucket acme-deploy-artifacts \
+            --image-repository ${{ env.ECR_REPO }} \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               ImageUriParameter=${{ env.IMAGE_URI }} \

@@ -4,4 +4,4 @@ boto3
 # e.g., numpy, pandas, tensorflow, or huggingface-cli related packages
 # Example:
 # numpy>=1.20.0
-# scikit-learn>=1.0
+# scikit-learn>=1.0 
