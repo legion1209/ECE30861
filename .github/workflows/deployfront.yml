@@ -38,14 +38,14 @@ jobs:
           
       - name: Install & Build UI
         run: |
-          cd model-registry-frontend/
+          cd model-registry-ui/
           npm install
           npm run build # Replace 'build' with the actual command that creates static files
           
       # --- Deploy to S3 ---
       - name: Sync Build Folder to S3
         run: |
-          aws s3 sync model-registry-frontend/dist s3://${{ env.S3_BUCKET_NAME }}/ \
+          aws s3 sync model-registry-ui/dist s3://${{ env.S3_BUCKET_NAME }}/ \
             --delete # Ensures old files are removed
 
       - name: Invalidate CloudFront Cache
