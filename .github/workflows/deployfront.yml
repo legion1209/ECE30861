@@ -13,8 +13,7 @@ jobs:
     
     env:
       AWS_REGION: us-east-1
-      S3_BUCKET_NAME: ece461-frontend-website # Name of your S3 bucket hosting the UI
-      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_ID }}
+      S3_BUCKET_NAME: acme-frontend-artifacts # Name of your S3 bucket hosting the UI
       
     permissions:
       id-token: write
