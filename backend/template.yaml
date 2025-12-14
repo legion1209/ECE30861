@@ -98,6 +98,17 @@ Resources:
             Path: /artifact/model/{id}/rate
             Method: GET
         
+        LineageEvent:
+          Type: Api
+          Properties:
+            Path: /artifact/model/{id}/lineage
+            Method: GET 
+        LicenseCheckEvent:
+          Type: Api
+          Properties:
+            Path: /artifact/model/{id}/license-check 
+            Method: POST
+        
         DownloadArtifact:
           Type: Api
           Properties:
