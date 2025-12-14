@@ -59,7 +59,7 @@ def lambda_handler(event, context):
             and '/artifact/' in path
             and not path.endswith('/byRegEx')
             and not path.endswith('/license-check')):
-
+            
             parts = path.strip('/').split('/')
 
             # Find the segment after "artifact"
@@ -257,13 +257,7 @@ from boto3.dynamodb.conditions import Attr
 
 def handle_search_artifacts(event):
     """
-    Handle POST /artifacts to list or search artifacts.
-
-    Request body (all optional):
-      {
-        "searchTerm": "some text",   # substring match on name (case-insensitive)
-        "types": ["model", "dataset"]  # limit to these types
-      }
+    Handle POST /artifacts to list or search packages.
     """
     try:
         dynamodb = boto3.resource('dynamodb')
@@ -274,57 +268,38 @@ def handle_search_artifacts(event):
         if event.get('body'):
             try:
                 body = json.loads(event['body'])
-            except Exception:
-                body = {}
+            except:
+                pass
 
-        search_term = (body.get('searchTerm') or "").strip().lower()
-        type_filters = body.get('types') or []   # list of strings
-
-        # Simple scan for class project scale
         response = table.scan(
             ProjectionExpression="#id, #name, #type, #status",
             ExpressionAttributeNames={
-                "#id": "id",
-                "#name": "name",
+                "#id": "id", 
+                "#name": "name", 
                 "#type": "type",
-                "#status": "status",
-            },
+                "#status": "status"
+            }
         )
         items = response.get('Items', [])
 
         results = []
         for item in items:
-            name = item.get('name', 'unknown')
-            art_type = item.get('type', 'model')
-
-            # Filter by type if provided
-            if type_filters and art_type not in type_filters:
-                continue
-
-            # Substring search on name if provided
-            if search_term and search_term not in name.lower():
-                continue
-
             results.append({
-                "id": item.get("id"),
-                "name": name,
-                "Version": "1.0.0",
-                "Type": art_type,
-                "type": art_type,
-                "status": item.get("status", "UNKNOWN"),
+                'id': item.get('id'),
+                'name': item.get('name', 'unknown'),
+                'Version': '1.0.0',
+                'Type': item.get('type', 'model'),
+                'type': item.get('type', 'model')
             })
 
         return {
-            "statusCode": 200,
-            "body": json.dumps(results, cls=DecimalEncoder),
+            'statusCode': 200,
+            'body': json.dumps(results)
         }
 
     except Exception as e:
         LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-        }
+        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
     
 import re
 
