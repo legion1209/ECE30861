@@ -57,21 +57,27 @@ Resources:
       Policies:
         # Grants permissions to read the SQS queue (replace QueueArn with your actual SQS ARN or Ref)
         - Statement:
-            Effect: Allow
-            Action:
-              - sqs:ReceiveMessage
-              - sqs:DeleteMessage
-              - sqs:GetQueueAttributes
-            Resource: 
-              Sub: "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name"
+            - Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource: 
+                - !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name"
         # Grants permissions to read the model sources from S3
         - S3ReadPolicy:
             BucketName: 
               Ref: S3ArtifactBucketName
         # Grants permissions to update the DynamoDB table (the final link!)
-        - DynamoDBCrudPolicy:
-            TableName: 
-              Ref: DynamoDBTableName
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+              Resource: 
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoDBTableName}"
       # --- Environment Variables for the Python handler ---
       Environment:
         Variables:
