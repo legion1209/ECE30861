@@ -49,7 +49,7 @@ jobs:
             --delete # Ensures old files are removed
 
       - name: Invalidate CloudFront Cache
-        uses: aws-actions/invalidate-cloudfront-action@v3
-        with:
-          distribution-id: ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
-          paths: '/index.html'
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"

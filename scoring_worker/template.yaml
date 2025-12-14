@@ -5,9 +5,18 @@ Description: Asynchronous Worker Lambda for Model Scoring
 
 # These parameters are passed from the GitHub Actions YAML
 Parameters:
+  ImageUriParameter:
+    Type: String
+    Description: URI of the Docker image pushed to ECR.
+  DynamoDBTableName:
+    Type: String
+    Description: The DynamoDB table name.
   S3ArtifactBucketName:
     Type: String
-    Description: Name of the S3 bucket where source files are uploaded.
+    Description: The S3 bucket name.
+  ScoringQueueName:
+    Type: String
+    Description: The SQS queue name (passed from CI/CD).
 
 Resources:
   # The SQS Queue (Assuming this is shared, or defined in the API stack)
@@ -36,12 +45,12 @@ Resources:
       QueueName: ECE461-Scoring-Queue
       VisibilityTimeout: 1800 # 30 minutes for long scoring jobs
 
-  ApiLambdaFunction:
+  WorkerLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Runtime: python3.11
-      Handler: handler.lambda_handler
-      CodeUri: . # 確保這裡包含 handler.py 以及上一層的 src/
+      PackageType: Image
+      ImageUri: 
+        Ref: ImageUriParameter
       MemorySize: 4096 # High memory for model loading
       Timeout: 1800 # 30 minutes max execution time for heavy scoring
       # --- Permissions ---
