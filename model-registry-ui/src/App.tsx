@@ -172,7 +172,7 @@ export default function App(){
 // ===================== Screens =====================
 function Login({ onAuthed, onError }: { onAuthed: (t:string)=>void; onError:(m:string)=>void }){
   const [username, setUsername] = useState("ece30861defaultadminuser");
-  const [password, setPassword] = useState("correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE artifacts;");
+  const [password, setPassword] = useState("correcthorsebatterystaple123(!__+@**(A'" + '"`;DROP TABLE artifacts;');
   const [busy, setBusy] = useState(false);
   async function submit(e: FormEvent){
     e.preventDefault();
