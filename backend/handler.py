@@ -68,16 +68,18 @@ def lambda_handler(event, context):
 
         # [D] Lineage (GET /artifact/{type}/{id}/lineage)
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
-            if len(path.strip('/').split('/')) >= 2:
-                artifact_id = path.strip('/').split('/')[-2]
+            parts = path.strip('/').split('/')
+            current_id = parts[-2] if len(parts) >= 2 else "unknown"
+            current_type = parts[-3] if len(parts) >= 3 else "model"
+            
             response = {
                 'statusCode': 200, 
                 'body': json.dumps({
                     'nodes': [
                         {
-                            'artifact_id': artifact_id, 
+                            'artifact_id': current_id, 
                             'name': 'Current Artifact',
-                            'source': artifact_type,
+                            'source': current_type, 
                             'metadata': {}
                         }
                     ],
@@ -86,7 +88,7 @@ def lambda_handler(event, context):
             }
 
         # [E] License Check (GET /artifact/{type}/{id}/license)
-        if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/license-check'):
+        if http_method == 'POST' and '/artifact/model/' in path and path.endswith('/license-check'):
             response = {
                 'statusCode': 200, 
                 'body': json.dumps(True)
@@ -99,6 +101,14 @@ def lambda_handler(event, context):
         # [G] Delete Artifact (DELETE /artifact/{type}/{id})
         if http_method == 'DELETE' and '/artifact/' in path:
             response = handle_delete_artifact(event)
+
+        # [H] Search by RegEx (POST /artifact/byRegEx)
+        if http_method == 'POST' and path.endswith('/byRegEx'):
+            response = handle_search_by_regex(event) 
+
+        # [I] List/Search Artifacts (POST /artifacts)
+        if http_method == 'POST' and path.endswith('/artifacts'):
+            response = handle_search_artifacts(event)
 
         # If no route matches
         if 'headers' not in response:
