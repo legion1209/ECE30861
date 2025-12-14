@@ -3,7 +3,7 @@ import boto3
 from typing import Any, Mapping
 from decimal import Decimal
 import time
-timestamp = time()
+timestamp = Decimal(str(time.time()))
 
 # Initialize DynamoDB client outside the functions for Lambda performance
 dynamodb = boto3.resource('dynamodb')
