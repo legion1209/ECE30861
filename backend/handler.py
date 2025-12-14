@@ -268,9 +268,9 @@ def handle_search_artifacts(event):
             ProjectionExpression="#id, #name, #type, #status",
             ExpressionAttributeNames={
                 "#id": "id", 
-                "#name": "name", 
-                "#type": "type",
-                "#status": "status"
+                "#status": "status",
+                "#timestamp": "timestamp",
+                "#url": "url"
             }
         )
         items = response.get('Items', [])

@@ -20,10 +20,10 @@ def lambda_handler(event, context):
     Entry point for the SQS-triggered Worker Lambda.
     """
     os.chdir('/tmp')
-    
+
     for record in event['Records']:
+        artifact_id = "unknown"
         try:
-            # Parse the SQS message body (sent by the API Lambda)
             body = json.loads(record['body'])
             artifact_id = body.get('artifact_id')
             url = body.get('url')
@@ -33,22 +33,28 @@ def lambda_handler(event, context):
                 if artifact_data:
                     url = artifact_data.get('url')
 
+            if not url:
+                LOGGER.error("FATAL: URL not found for artifact: %s", artifact_id)
+                update_database(artifact_id, "FAILED", None) 
+                continue 
+
             LOGGER.info(f"Scoring {artifact_id} via runner logic...")
 
-            scores = score_artifact_for_worker(url)
+            scores_dict = score_artifact_for_worker(url)
+            
+            net_score = scores_dict.get('net_score', 0.0)
 
-            if scores.net_score < 0.5:
+            if net_score < 0.5:
                 status = "FAILED"
             else:
                 status = "COMPLETE"
 
-            # Update db
-            update_database(artifact_id, status, scores)
-            LOGGER.info(f"Success! Score: {scores.net_score}")
+            # 3. Update db 
+            update_database(artifact_id, status, scores_dict)
+            LOGGER.info(f"Success! Score: {net_score}")
 
         except Exception as e:
             LOGGER.error("Failed to process SQS record for %s: %s", artifact_id, str(e))
-            # Re-raise the exception to allow SQS to handle retries
             raise e 
     
     return {'statusCode': 200}
