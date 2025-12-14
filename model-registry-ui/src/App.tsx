@@ -221,7 +221,7 @@ function Search({ token, onError, onPick }:{ token:string; onError:(m:string)=>v
       const q: ArtifactQuery = { name };
       const t = Object.entries(types).filter(([,v])=>v).map(([k])=>k as ArtifactType);
       if (t.length>0 && t.length<3) q.types = t;
-      const res = await api<ArtifactMetadata[]>("/artifacts?offset=1", { method:"POST", token, body: [q] });
+      const res = await api<ArtifactMetadata[]>("/artifact?offset=1", { method:"POST", token, body: [q] });
       setItems(res);
     }catch(err:any){ onError(err.message || String(err)); }
     finally{ setBusy(false); }
@@ -271,7 +271,7 @@ function Detail({ token, meta, onError, onOpen }:{ token:string; meta:ArtifactMe
     if (!meta) return;
     setBusy(true);
     try{
-      const res = await api<Artifact>(`/artifacts/${meta.type}/${meta.id}`, { token });
+      const res = await api<Artifact>(`/artifact/${meta.type}/${meta.id}`, { token });
       setArtifact(res);
     }catch(err:any){ onError(err.message || String(err)); }
     finally{ setBusy(false); }
