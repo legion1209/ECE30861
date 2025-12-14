@@ -19,32 +19,6 @@ Parameters:
     Description: The SQS queue name (passed from CI/CD).
 
 Resources:
-  # The SQS Queue (Assuming this is shared, or defined in the API stack)
-  # If the SQS Queue is defined here, it would be:
-  # ScoringQueue:
-  #   Type: AWS::SQS::Queue
-  #   Properties:
-  #     VisibilityTimeout: 1800 
-
-  # The Worker Lambda Function (Deployed from the ECR Image)
-  ArtifactsTable:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      TableName: ECE461Artifacts
-      PrimaryKey:
-        Name: id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-
-  # 2. SQS Queue (The asynchronous link)
-  ScoringQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: ECE461-Scoring-Queue
-      VisibilityTimeout: 1800 # 30 minutes for long scoring jobs
-
   WorkerLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
