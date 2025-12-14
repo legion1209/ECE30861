@@ -1,4 +1,4 @@
-# scoring-worker/requirements.txt
+# scoring_worker/requirements.txt
 boto3
 # Add all core dependencies for your scoring logic here:
 # e.g., numpy, pandas, tensorflow, or huggingface-cli related packages

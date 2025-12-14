@@ -8,8 +8,8 @@ WORKDIR /var/task
 # Copy your core application logic (src/) and the worker entry point and dependencies
 # The Docker build MUST be run from the 'phase2' root directory for these paths to work.
 COPY ./src /var/task/src
-COPY ./scoring-worker/handler.py /var/task/
-COPY ./scoring-worker/requirements.txt /var/task/
+COPY ./scoring_worker/handler.py /var/task/
+COPY ./scoring_worker/requirements.txt /var/task/
 
 # Install Python dependencies. 
 RUN pip install -r /var/task/requirements.txt --target /var/task
