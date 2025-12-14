@@ -90,5 +90,4 @@ Resources:
         ScoringQueueEvent:
           Type: SQS
           Properties:
-            Queue: 
-              Sub: "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name" # Replace with your queue ARN
+            Queue: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${ScoringQueueName}"
