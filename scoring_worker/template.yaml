@@ -37,7 +37,7 @@ Resources:
                 - sqs:DeleteMessage
                 - sqs:GetQueueAttributes
               Resource: 
-                - !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name"
+                - !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${ScoringQueueName}"
         # Grants permissions to read the model sources from S3
         - S3ReadPolicy:
             BucketName: 
