@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 declare global {
@@ -219,7 +219,7 @@ function Search({ token, onError, onPick }:{ token:string; onError:(m:string)=>v
     setBusy(true);
     try{
       const q: ArtifactQuery = { name };
-      const t = Object.entries(types).filter(([k,v])=>v).map(([k])=>k as ArtifactType);
+      const t = Object.entries(types).filter(([,v])=>v).map(([k])=>k as ArtifactType);
       if (t.length>0 && t.length<3) q.types = t;
       const res = await api<ArtifactMetadata[]>("/artifacts?offset=1", { method:"POST", token, body: [q] });
       setItems(res);
