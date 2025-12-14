@@ -73,7 +73,7 @@ Resources:
         SearchArtifacts:
           Type: Api
           Properties:
-            Path: /artifact
+            Path: /artifacts
             Method: POST
 
         PostArtifactModel:
