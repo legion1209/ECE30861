@@ -48,7 +48,7 @@ def lambda_handler(event, context):
     # [B] Upload Artifact (Supports model, dataset, code)
     # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
     # Example: /artifact/model, /artifact/dataset
-    if http_method == 'POST' and path.startswith('/artifact/'):
+    if http_method == 'POST' and path.startswith('Prod/artifact/'):
         # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
         parts = path.strip('/').split('/')
         if len(parts) == 3:
