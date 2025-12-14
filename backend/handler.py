@@ -131,7 +131,7 @@ def handle_authenticate(event):
     try:
         body = json.loads(event['body'])
         if (body.get('user', {}).get('name') == "ece30861defaultadminuser" and 
-            body.get('secret', {}).get('password') == "correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE artifacts;"):
+            body.get('secret', {}).get('password') == "correcthorsebatterystaple123(!__+@**(A'" + '"`;DROP TABLE artifacts;'):
             return {
                 'statusCode': 200,
                 'body': json.dumps("some-valid-token-string") # Return token
@@ -172,7 +172,8 @@ def handle_post_artifact(event, artifact_type):
                     'artifact_id': artifact_id,
                     's3_bucket': S3_BUCKET,
                     's3_key': s3_key,
-                    'type': artifact_type
+                    'type': artifact_type,
+                    'url': source_url
                 })
             )
         

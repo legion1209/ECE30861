@@ -26,6 +26,9 @@ def lambda_handler(event, context):
             artifact_id = body.get('artifact_id')
             url = body.get('url')
 
+            if not url:
+                LOGGER.error("No URL found in SQS message for %s", artifact_id)
+
             LOGGER.info(f"Scoring {artifact_id} via runner logic...")
 
             scores = score_artifact_for_worker(url)
