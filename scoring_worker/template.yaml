@@ -27,7 +27,7 @@ Resources:
         Type: String
       ProvisionedThroughput:
         ReadCapacityUnits: 5
-        WriteCapacityUnits: 5 
+        WriteCapacityUnits: 5
 
   # 2. SQS Queue (The asynchronous link)
   ScoringQueue:

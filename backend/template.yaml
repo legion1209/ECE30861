@@ -30,7 +30,7 @@ Resources:
 
   # 3. Frontend API Lambda (The synchronous handler)
   ApiLambdaFunction:
-    Type: AWS::Serverless::Function
+    Type: AWS::Serverless::Function 
     Properties:
       Runtime: python3.11
       Handler: handler.lambda_handler
