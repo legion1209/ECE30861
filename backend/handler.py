@@ -5,6 +5,7 @@ import uuid
 import boto3
 import urllib.request
 import logging
+from decimal import Decimal
 
 from src.acme_cli.database_service import create_artifact, get_artifact_rating 
 
@@ -22,6 +23,12 @@ CORS_HEADERS = {
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-Authorization"
 }
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 def lambda_handler(event, context):
     """Router for API Gateway events."""
@@ -88,6 +95,10 @@ def lambda_handler(event, context):
         # [F] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
         if http_method == 'GET' and '/artifact/' in path:
             response = handle_download_artifact(event)
+
+        # [G] Delete Artifact (DELETE /artifact/{type}/{id})
+        if http_method == 'DELETE' and '/artifact/' in path:
+            response = handle_delete_artifact(event)
 
         # If no route matches
         if 'headers' not in response:
@@ -183,7 +194,7 @@ def handle_get_rating(event):
         
         if status == 'COMPLETE':
             # Return the full ModelRating object
-            return {'statusCode': 200, 'body': json.dumps(artifact_data.get('ModelRating'))}
+            return {'statusCode': 200, 'body': json.dumps(artifact_data.get('ModelRating'), cls=DecimalEncoder)}
         
         # If pending or failed, return status only
         return {'statusCode': 204, 'headers': {'X-Status': status}, 'body': ''}
@@ -303,3 +314,30 @@ def handle_search_by_regex(event):
         return {'statusCode': 200, 'body': json.dumps(matches)}
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+    
+def handle_delete_artifact(event):
+    try:
+        # Extract ID from path parameters
+        path = event.get('path')
+        parts = path.strip('/').split('/')
+
+        if len(parts) >= 3:
+            artifact_type = parts[1]
+            artifact_id = parts[2]
+        else:
+            return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
+
+        # Delete from S3
+        s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
+        s3_client.delete_object(Bucket=S3_BUCKET, Key=s3_key)
+
+        # Delete from DynamoDB
+        dynamodb = boto3.resource('dynamodb')
+        table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
+        table = dynamodb.Table(table_name)
+        table.delete_item(Key={'id': artifact_id})
+
+        return {'statusCode': 200, 'body': json.dumps({'message': 'Artifact deleted successfully'})}
+    except Exception as e:
+        LOGGER.error("Delete Error: %s", str(e), exc_info=True)
+        return {'statusCode': 500, 'body': json.dumps({'error': f"Internal error: {str(e)}"})}
