@@ -7,6 +7,7 @@ on:
     paths:
       - 'scoring_worker/**'
       - 'src/acme_cli/scoring.py' # Deploy if core scoring logic changes
+      - 'src/acme_cli/runner.py'
 
 jobs:
   deploy:
