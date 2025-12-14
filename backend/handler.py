@@ -48,7 +48,7 @@ def lambda_handler(event, context):
     # [B] Upload Artifact (Supports model, dataset, code)
     # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
     # Example: /artifact/model, /artifact/dataset
-    if http_method == 'POST' and path.startswith('Prod/artifact/'):
+    if http_method == 'POST' and '/artifact/' in path:
         # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
         parts = path.strip('/').split('/')
         if len(parts) == 3:
@@ -56,11 +56,11 @@ def lambda_handler(event, context):
             response = handle_post_artifact(event, artifact_type)
 
     # [C] Check rating (GET /artifact/model/{id}/rate)
-    if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
+    if http_method == 'GET' and '/Prod/artifact/model/' in path and path.endswith('/rate'):
         response = handle_get_rating(event)
 
-    # [D] Download Artifact (GET /artifacts/{type}/{id}) - (Added based on your requirements)
-    if http_method == 'GET' and '/artifacts/' in path:
+    # [D] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
+    if http_method == 'GET' and '/Prod/artifact/' in path:
         response = handle_download_artifact(event)
 
     # If no route matches
@@ -166,13 +166,13 @@ def handle_download_artifact(event):
     
     # generate S3 Presigned URL for download
     try:
-        # path: /artifacts/{type}/{id}
+        # path: Prod/artifacts/{type}/{id}
         path = event.get('path')
         parts = path.strip('/').split('/')
 
         if len(parts) >= 3:
-            artifact_type = parts[1]
-            artifact_id = parts[2]
+            artifact_type = parts[2]
+            artifact_id = parts[3]
         else:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
         
