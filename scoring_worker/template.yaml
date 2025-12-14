@@ -52,7 +52,7 @@ Resources:
       ImageUri: 
         Ref: ImageUriParameter
       MemorySize: 4096 # High memory for model loading
-      Timeout: 1800 # 30 minutes max execution time for heavy scoring
+      Timeout: 600 # 10 minutes max execution time for heavy scoring
       # --- Permissions ---
       Policies:
         # Grants permissions to read the SQS queue (replace QueueArn with your actual SQS ARN or Ref)
