@@ -60,20 +60,20 @@ def lambda_handler(event, context):
             response = handle_get_rating(event)
 
         # [D] Lineage (GET /artifact/{type}/{id}/lineage)
-        if http_method == 'GET' and path.endswith('/lineage'):
+        if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
             return {
                 'statusCode': 200, 
                 'body': json.dumps({'message': 'Lineage graph feature coming soon'})
             }
 
         # [E] License Check (GET /artifact/{type}/{id}/license)
-        if http_method == 'GET' and path.endswith('/license'):
+        if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/license-check'):
             return {
                 'statusCode': 200, 
                 'body': json.dumps({'license': 'MIT', 'compatibility': 'Compatible'})
             }
 
-        # [D] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
+        # [F] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
         if http_method == 'GET' and '/artifact/' in path:
             response = handle_download_artifact(event)
 
