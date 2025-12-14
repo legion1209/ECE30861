@@ -70,7 +70,7 @@ def update_database(artifact_id, status, scores=None):
     
     update_expression = "SET #s = :status"
     expression_values = {':status': status}
-    expression_names = {'#s': 'status'}
+    expression_names = {'#s': 'status'} 
 
     # If scores are provided, write them to the database as well
     # Note: DynamoDB does not support float types; they must be converted to Decimal.
