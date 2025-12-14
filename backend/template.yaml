@@ -108,15 +108,12 @@ Resources:
 Outputs:
   ScoringQueueArn:
     Description: "The ARN of the SQS Scoring Queue"
-    Value: 
-      GetAtt: ScoringQueue.Arn
+    Value: !GetAtt ScoringQueue.Arn
     Export:
       Name: ECE461-ScoringQueueArn
   ScoringQueueName:
     Description: "The Name of the SQS Scoring Queue"
-    Value: 
-      GetAtt: ScoringQueue.QueueName
+    Value: !GetAtt ScoringQueue.QueueName
   ApiUrl:
     Description: "API Gateway endpoint URL for Prod stage"
-    Value: 
-      Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" 
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" 
