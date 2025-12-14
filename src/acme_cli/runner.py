@@ -62,5 +62,14 @@ def _checked_run(cmd: Sequence[str]) -> int:
         raise CommandError(str(exc)) from exc
     return 0
 
+def score_artifact_for_worker(url: str):
+    sys.path.insert(0, str(SRC_ROOT))
+    try:
+        from acme_cli.scoring import score_url
+        scores = score_url(url)
+    except ImportError:
+        raise NotImplementedError("scoring.py does not exist a score_url function")
+
+    return scores
 
 __all__ = ["CommandError", "run_install", "run_tests", "run_score"]
