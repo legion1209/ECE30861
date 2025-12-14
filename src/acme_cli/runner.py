@@ -64,9 +64,9 @@ def _checked_run(cmd: Sequence[str]) -> int:
 
 def score_artifact_for_worker(url: str):
     sys.path.insert(0, str(SRC_ROOT))
-    
-    from acme_cli.scoring import score_url
-    scores = score_url(url)
+
+    from acme_cli.scoring import score_file
+    scores = score_file(url)
 
     return scores
 
