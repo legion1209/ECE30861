@@ -9,11 +9,12 @@ timestamp = Decimal(str(time.time()))
 dynamodb = boto3.resource('dynamodb')
 
 # Table name is pulled from environment variables set by the SAM template
-ARTIFACTS_TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
+TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
 
-TABLE_NAME = os.environ.get('DYNAMODB_TABLE', 'ArtifactTable') 
 dynamodb = boto3.resource('dynamodb')
+
 table = dynamodb.Table(TABLE_NAME)
+print(f"Database Service Connected to: {TABLE_NAME}")
 
 # --- 1. Used by API Lambda (Job Submission) ---
 def create_artifact(artifact_id: str, url: str) -> None:
