@@ -40,28 +40,21 @@ Resources:
       Policies:
         # Grants permissions to WRITE to SQS
         - SQSSendMessagePolicy:
-            QueueName: 
-              GetAtt: ScoringQueue.QueueName
+            QueueName: !GetAtt ScoringQueue.QueueName
         # Grants permissions to READ/WRITE to DynamoDB
         - DynamoDBCrudPolicy:
-            TableName: 
-              Ref: ArtifactsTable
+            TableName: !Ref ArtifactsTable
         # Grant permission to Generate Presigned URL for S3 (Download)
         - S3ReadPolicy:
-            BucketName: 
-              Ref: S3ArtifactBucketName
+            BucketName: !Ref S3ArtifactBucketName
         # Grant permission to Upload to S3 (Upload)
         - S3WritePolicy:
-            BucketName: 
-              Ref: S3ArtifactBucketName
+            BucketName: !Ref S3ArtifactBucketName
       Environment:
         Variables:
-          DYNAMODB_TABLE_NAME: 
-            Ref: ArtifactsTable
-          SQS_QUEUE_URL: 
-            Ref: ScoringQueue
-          S3_ARTIFACT_BUCKET: 
-            Ref: S3ArtifactBucketName
+          DYNAMODB_TABLE_NAME: !Ref ArtifactsTable
+          SQS_QUEUE_URL: !Ref ScoringQueue
+          S3_ARTIFACT_BUCKET: !Ref S3ArtifactBucketName
 
       Events:
         Authenticate:
