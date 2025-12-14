@@ -92,4 +92,3 @@ Resources:
           Properties:
             Queue: 
               Sub: "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:your-sqs-queue-name" # Replace with your queue ARN
-            BatchSize: 1 # Process one job at a time for long runs
