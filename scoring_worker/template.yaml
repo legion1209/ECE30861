@@ -19,6 +19,9 @@ Parameters:
     Description: The SQS queue name (passed from CI/CD).
 
 Resources:
+  ArtifactsTable:
+    Type: AWS::Serverless::SimpleTable
+
   WorkerLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -43,6 +46,8 @@ Resources:
             BucketName: 
               Ref: S3ArtifactBucketName
         # Grants permissions to update the DynamoDB table (the final link!)
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArtifactsTable
         - Statement:
             - Effect: Allow
               Action:
@@ -55,7 +60,7 @@ Resources:
       # --- Environment Variables for the Python handler ---
       Environment:
         Variables:
-          DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
+          DYNAMODB_TABLE_NAME: !Ref ArtifactsTable
           S3_ARTIFACT_BUCKET: !Ref S3ArtifactBucketName
       # --- SQS Trigger Configuration ---
       Events:
