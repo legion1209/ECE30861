@@ -81,10 +81,8 @@ Resources:
       # --- Environment Variables for the Python handler ---
       Environment:
         Variables:
-          DYNAMODB_TABLE_NAME: 
-            Ref: DynamoDBTableName
-          S3_ARTIFACT_BUCKET: 
-            Ref: S3ArtifactBucketName
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
+          S3_ARTIFACT_BUCKET: !Ref S3ArtifactBucketName
       # --- SQS Trigger Configuration ---
       Events:
         ScoringQueueEvent:
