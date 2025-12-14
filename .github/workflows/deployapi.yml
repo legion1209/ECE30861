@@ -36,6 +36,11 @@ jobs:
           
       - name: Install SAM CLI
         run: pip install aws-sam-cli
+
+      - name: Copy Shared Code to Backend
+        run: |
+          cp -r src backend/
+          ls -R backend/src
         
       - name: Build Serverless Application (API)
         # This builds the API Lambda, creating the ZIP file package
