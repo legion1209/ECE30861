@@ -37,7 +37,7 @@ LOGGER.addHandler(file_handler)
 LOGGER.addHandler(console_handler)
 
 
-def score_file(url_file: Path, cli_args: Sequence[str]) -> None:
+def score_file(url_file: Path) -> None:
     """Score every model referenced in *url_file* and emit NDJSON to stdout."""
     _configure_logging()
     targets = parse_url_file(url_file)
@@ -65,7 +65,7 @@ def _score_target(scorer: ModelScorer, target: ScoreTarget) -> dict[str, Any]:
             for failure in outcome.failures:
                 LOGGER.warning("Metric %s failed: %s", failure.name, failure.message)
         return record
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  
         LOGGER.exception("Failed to score %s", target.model_url)
         return _empty_record(target.model_url, error=str(exc))
 

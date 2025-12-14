@@ -1,0 +1,137 @@
+# backend-api/template.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Fast API Backend for Model Registry (API Gateway, SQS, DynamoDB)
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Authorization'"
+      AllowOrigin: "'*'"
+
+Parameters:
+  S3ArtifactBucketName:
+    Type: String
+    Description: Name of the S3 bucket where source files are uploaded.
+
+Resources:
+  # 1. DynamoDB Table (The persistent state)
+  ArtifactsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: ECE461Artifacts # Consistent name for both Lambdas
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # 2. SQS Queue (The asynchronous link)
+  ScoringQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ECE461-Scoring-Queue # Consistent name for both Lambdas
+      VisibilityTimeout: 1800 # 30 minutes for long scoring jobs
+
+  # 3. Frontend API Lambda (The synchronous handler)
+  ApiLambdaFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      Runtime: python3.11
+      Handler: handler.lambda_handler
+      CodeUri: . # Local folder deployment for the API
+      MemorySize: 256 # Small memory is fine, as it does no heavy work
+      Timeout: 10 # Short timeout, must respond quickly
+      Policies:
+        # Grants permissions to WRITE to SQS
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt ScoringQueue.QueueName
+        # Grants permissions to READ/WRITE to DynamoDB
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArtifactsTable
+        # Grant permission to Generate Presigned URL for S3 (Download)
+        - S3ReadPolicy:
+            BucketName: !Ref S3ArtifactBucketName
+        # Grant permission to Upload to S3 (Upload)
+        - S3WritePolicy:
+            BucketName: !Ref S3ArtifactBucketName
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ArtifactsTable
+          SQS_QUEUE_URL: !Ref ScoringQueue
+          S3_ARTIFACT_BUCKET: !Ref S3ArtifactBucketName
+
+      Events:
+        Authenticate:
+          Type: Api
+          Properties:
+            Path: /authenticate
+            Method: PUT
+
+        SearchArtifacts:
+          Type: Api
+          Properties:
+            Path: /artifact
+            Method: POST
+
+        PostArtifactModel:
+          Type: Api
+          Properties:
+            Path: /artifact/model
+            Method: POST
+        PostArtifactDataset:
+          Type: Api
+          Properties:
+            Path: /artifact/dataset
+            Method: POST
+        PostArtifactCode:
+          Type: Api
+          Properties:
+            Path: /artifact/code
+            Method: POST
+
+        GetRating:
+          Type: Api
+          Properties:
+            Path: /artifact/model/{id}/rate
+            Method: GET
+        
+        LineageEvent:
+          Type: Api
+          Properties:
+            Path: /artifact/model/{id}/lineage
+            Method: GET 
+        LicenseCheckEvent:
+          Type: Api
+          Properties:
+            Path: /artifact/model/{id}/license-check 
+            Method: POST
+        
+        DownloadArtifact:
+          Type: Api
+          Properties:
+            Path: /artifact/{type}/{id}
+            Method: GET
+        
+        Options:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: OPTIONS
+
+# --- OUTPUTS (For other stacks to reference) ---
+# This exports the ARN/URL so other stacks can reference it (the cleaner way)
+Outputs:
+  ScoringQueueArn:
+    Description: "The ARN of the SQS Scoring Queue"
+    Value: !GetAtt ScoringQueue.Arn
+    Export:
+      Name: ECE461-ScoringQueueArn
+  ScoringQueueName:
+    Description: "The Name of the SQS Scoring Queue"
+    Value: !GetAtt ScoringQueue.QueueName
+  ApiUrl:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" 

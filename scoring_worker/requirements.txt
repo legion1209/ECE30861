@@ -1,0 +1,5 @@
+# scoring_worker/requirements.txt
+boto3
+huggingface_hub
+requests
+PyYAML
