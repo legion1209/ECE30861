@@ -59,6 +59,20 @@ def lambda_handler(event, context):
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
             response = handle_get_rating(event)
 
+        # [D] Lineage (GET /artifact/{type}/{id}/lineage)
+        if http_method == 'GET' and path.endswith('/lineage'):
+            return {
+                'statusCode': 200, 
+                'body': json.dumps({'message': 'Lineage graph feature coming soon'})
+            }
+
+        # [E] License Check (GET /artifact/{type}/{id}/license)
+        if http_method == 'GET' and path.endswith('/license'):
+            return {
+                'statusCode': 200, 
+                'body': json.dumps({'license': 'MIT', 'compatibility': 'Compatible'})
+            }
+
         # [D] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
         if http_method == 'GET' and '/artifact/' in path:
             response = handle_download_artifact(event)
@@ -193,7 +207,7 @@ def handle_download_artifact(event):
         artifact_name = url.strip('/').split('/')[-2]
         return {
             'statusCode': 200,
-            'body': json.dumps({'metadata': {'name': artifact_name, 'type': artifact_type, 'id': artifact_id}, 'data': {'url': url}}) # url for download
+            'body': json.dumps({'meta': {'name': artifact_name}, 'metadata': {'type': artifact_type, 'id': artifact_id}, 'data': {'url': url}}) # url for download
         }
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
