@@ -224,9 +224,82 @@ def handle_download_artifact(event):
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
 
+from boto3.dynamodb.conditions import Attr
+
 def handle_search_artifacts(event):
-    # Return empty list for now
-    return {
-        'statusCode': 200,
-        'body': json.dumps([])
-    }
+    """
+    Handle POST /artifacts to list or search packages.
+    """
+    try:
+        dynamodb = boto3.resource('dynamodb')
+        table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
+        table = dynamodb.Table(table_name)
+
+        body = {}
+        if event.get('body'):
+            try:
+                body = json.loads(event['body'])
+            except:
+                pass
+
+        response = table.scan(
+            ProjectionExpression="#id, #name, #type, #status",
+            ExpressionAttributeNames={
+                "#id": "id", 
+                "#name": "name", 
+                "#type": "type",
+                "#status": "status"
+            }
+        )
+        items = response.get('Items', [])
+
+        results = []
+        for item in items:
+            results.append({
+                'id': item.get('id'),
+                'name': item.get('name', 'unknown'),
+                'Version': '1.0.0',
+                'Type': item.get('type', 'model'),
+                'type': item.get('type', 'model')
+            })
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps(results)
+        }
+
+    except Exception as e:
+        LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
+        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+    
+import re
+
+def handle_search_by_regex(event):
+    try:
+        dynamodb = boto3.resource('dynamodb')
+        table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
+        table = dynamodb.Table(table_name)
+        
+        body = json.loads(event['body'])
+        regex = body.get('regex', '')
+        
+        response = table.scan()
+        items = response.get('Items', [])
+        
+        matches = []
+        pattern = re.compile(regex)
+        
+        for item in items:
+            name = item.get('name', '')
+            if pattern.search(name):
+                matches.append({
+                    'id': item.get('id'),
+                    'name': name,
+                    'Version': '1.0.0',
+                    'Type': item.get('type'),
+                    'type': item.get('type')
+                })
+                
+        return {'statusCode': 200, 'body': json.dumps(matches)}
+    except Exception as e:
+        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}

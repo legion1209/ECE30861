@@ -27,7 +27,7 @@ def create_artifact(artifact_id: str, url: str) -> None:
         Item={
             'id': artifact_id, # Primary Key
             'url': url,
-            'status': 'COMPLETE',
+            'status': 'PENDING',
             'timestamp': current_timestamp 
         }
     )
