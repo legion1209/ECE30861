@@ -178,8 +178,8 @@ def handle_download_artifact(event):
         parts = path.strip('/').split('/')
 
         if len(parts) >= 3:
-            artifact_type = parts[2]
-            artifact_id = parts[3]
+            artifact_type = parts[1]
+            artifact_id = parts[2]
         else:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
         
