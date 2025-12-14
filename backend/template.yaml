@@ -64,16 +64,51 @@ Resources:
             Ref: S3ArtifactBucketName
 
       Events:
-        PostArtifact:
+        Authenticate:
+          Type: Api
+          Properties:
+            Path: /authenticate
+            Method: PUT
+
+        SearchArtifacts:
+          Type: Api
+          Properties:
+            Path: /artifacts
+            Method: POST
+
+        PostArtifactModel:
           Type: Api
           Properties:
             Path: /artifact/model
             Method: POST
+        PostArtifactDataset:
+          Type: Api
+          Properties:
+            Path: /artifact/dataset
+            Method: POST
+        PostArtifactCode:
+          Type: Api
+          Properties:
+            Path: /artifact/code
+            Method: POST
+
         GetRating:
           Type: Api
           Properties:
             Path: /artifact/model/{id}/rate
             Method: GET
+        
+        DownloadArtifact:
+          Type: Api
+          Properties:
+            Path: /artifacts/{type}/{id}
+            Method: GET
+        
+        Options:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: OPTIONS
 
 # --- OUTPUTS (For other stacks to reference) ---
 # This exports the ARN/URL so other stacks can reference it (the cleaner way)
@@ -88,3 +123,7 @@ Outputs:
     Description: "The Name of the SQS Scoring Queue"
     Value: 
       GetAtt: ScoringQueue.QueueName
+  ApiUrl:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: 
+      Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
