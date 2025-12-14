@@ -55,12 +55,19 @@ def lambda_handler(event, context):
         # [B] Upload Artifact (Supports model, dataset, code)
         # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
         # Example: /artifact/model, /artifact/dataset
-        if http_method == 'POST' and '/artifact/' in path:
-            # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
+        if (http_method == 'POST'
+            and '/artifact/' in path
+            and not path.endswith('/byRegEx')
+            and not path.endswith('/license-check')):
+
             parts = path.strip('/').split('/')
-            if len(parts) == 2:
-                artifact_type = parts[1] # Gets 'model', 'dataset', or 'code'
-                response = handle_post_artifact(event, artifact_type)
+
+            # Find the segment after "artifact"
+            if 'artifact' in parts:
+                idx = parts.index('artifact')
+                if len(parts) > idx + 1:
+                    artifact_type = parts[idx + 1]  # 'model', 'dataset', 'code'
+                    response = handle_post_artifact(event, artifact_type)
 
         # [C] Check rating (GET /artifact/model/{id}/rate)
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
@@ -250,7 +257,13 @@ from boto3.dynamodb.conditions import Attr
 
 def handle_search_artifacts(event):
     """
-    Handle POST /artifacts to list or search packages.
+    Handle POST /artifacts to list or search artifacts.
+
+    Request body (all optional):
+      {
+        "searchTerm": "some text",   # substring match on name (case-insensitive)
+        "types": ["model", "dataset"]  # limit to these types
+      }
     """
     try:
         dynamodb = boto3.resource('dynamodb')
@@ -261,38 +274,57 @@ def handle_search_artifacts(event):
         if event.get('body'):
             try:
                 body = json.loads(event['body'])
-            except:
-                pass
+            except Exception:
+                body = {}
 
+        search_term = (body.get('searchTerm') or "").strip().lower()
+        type_filters = body.get('types') or []   # list of strings
+
+        # Simple scan for class project scale
         response = table.scan(
             ProjectionExpression="#id, #name, #type, #status",
             ExpressionAttributeNames={
-                "#id": "id", 
-                "#name": "name", 
+                "#id": "id",
+                "#name": "name",
                 "#type": "type",
-                "#status": "status"
-            }
+                "#status": "status",
+            },
         )
         items = response.get('Items', [])
 
         results = []
         for item in items:
+            name = item.get('name', 'unknown')
+            art_type = item.get('type', 'model')
+
+            # Filter by type if provided
+            if type_filters and art_type not in type_filters:
+                continue
+
+            # Substring search on name if provided
+            if search_term and search_term not in name.lower():
+                continue
+
             results.append({
-                'id': item.get('id'),
-                'name': item.get('name', 'unknown'),
-                'Version': '1.0.0',
-                'Type': item.get('type', 'model'),
-                'type': item.get('type', 'model')
+                "id": item.get("id"),
+                "name": name,
+                "Version": "1.0.0",
+                "Type": art_type,
+                "type": art_type,
+                "status": item.get("status", "UNKNOWN"),
             })
 
         return {
-            'statusCode': 200,
-            'body': json.dumps(results)
+            "statusCode": 200,
+            "body": json.dumps(results, cls=DecimalEncoder),
         }
 
     except Exception as e:
         LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
-        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)}),
+        }
     
 import re
 
