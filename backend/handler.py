@@ -190,9 +190,10 @@ def handle_download_artifact(event):
             Params={'Bucket': S3_BUCKET, 'Key': s3_key},
             ExpiresIn=3600 # URL expires in 1 hour
         )
+        artifact_name = url.strip('/').split('/')[-2]
         return {
             'statusCode': 200,
-            'body': json.dumps({'metadata': {'Type': artifact_type, 'ID': artifact_id}, 'data': {'url': url}}) # url for download
+            'body': json.dumps({'metadata': {'name': artifact_name, 'type': artifact_type, 'id': artifact_id}, 'data': {'url': url}}) # url for download
         }
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
