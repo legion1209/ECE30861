@@ -61,14 +61,14 @@ def lambda_handler(event, context):
 
         # [D] Lineage (GET /artifact/{type}/{id}/lineage)
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
-            return {
+            response = {
                 'statusCode': 200, 
                 'body': json.dumps({'message': 'Lineage graph feature coming soon'})
             }
 
         # [E] License Check (GET /artifact/{type}/{id}/license)
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/license-check'):
-            return {
+            response = {
                 'statusCode': 200, 
                 'body': json.dumps({'license': 'MIT', 'compatibility': 'Compatible'})
             }
