@@ -19,6 +19,8 @@ def lambda_handler(event, context):
     """
     Entry point for the SQS-triggered Worker Lambda.
     """
+    os.chdir('/tmp')
+    
     for record in event['Records']:
         try:
             # Parse the SQS message body (sent by the API Lambda)
