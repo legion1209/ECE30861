@@ -43,7 +43,7 @@ def lambda_handler(event, context):
     
     # [A] Login authentication (PUT /authenticate)
     if http_method == 'PUT' and path == '/authenticate':
-        return handle_authenticate(event)
+        response = handle_authenticate(event)
     
     # [B] Upload Artifact (Supports model, dataset, code)
     # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
@@ -53,18 +53,23 @@ def lambda_handler(event, context):
         parts = path.strip('/').split('/')
         if len(parts) == 2:
             artifact_type = parts[1] # Gets 'model', 'dataset', or 'code'
-            return handle_post_artifact(event, artifact_type)
+            response = handle_post_artifact(event, artifact_type)
 
     # [C] Check rating (GET /artifact/model/{id}/rate)
     if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
-        return handle_get_rating(event)
+        response = handle_get_rating(event)
 
     # [D] Download Artifact (GET /artifacts/{type}/{id}) - (Added based on your requirements)
     if http_method == 'GET' and '/artifacts/' in path:
-        return handle_download_artifact(event)
+        response = handle_download_artifact(event)
 
     # If no route matches
-    return {'statusCode': 404, 'body': json.dumps({'error': 'Not found'})}
+    if 'headers' not in response:
+        response['headers'] = {}
+    
+    response['headers'].update(CORS_HEADERS)
+    
+    return response
 
 def handle_authenticate(event):
     # Implement authentication logic here
