@@ -3,6 +3,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: Fast API Backend for Model Registry (API Gateway, SQS, DynamoDB)
 
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Authorization'"
+      AllowOrigin: "'*'"
+
 Parameters:
   S3ArtifactBucketName:
     Type: String

@@ -17,6 +17,12 @@ SQS_URL = os.environ.get('SQS_QUEUE_URL')
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-Authorization"
+}
+
 def lambda_handler(event, context):
     """Router for API Gateway events."""
     # 1. First step: Extract HTTP method and path (Must be done first)
@@ -24,6 +30,14 @@ def lambda_handler(event, context):
     path = event.get('path')
     
     LOGGER.info(f"Received {http_method} request for {path}")
+
+    if http_method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': CORS_HEADERS,
+            'body': ''
+        }
+    response = None
 
     # 2. Routing logic
     
