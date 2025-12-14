@@ -5,7 +5,7 @@ import boto3
 import logging
 
 from src.acme_cli.runner import score_artifact_for_worker
-from src.acme_cli.database_service import update_database
+from src.acme_cli.database_service import update_database, get_artifact_rating
 
 # Initialize AWS clients outside the handler for better performance
 s3_client = boto3.client('s3')
@@ -26,8 +26,10 @@ def lambda_handler(event, context):
             artifact_id = body.get('artifact_id')
             url = body.get('url')
 
-            if not url:
-                LOGGER.error("No URL found in SQS message for %s", artifact_id)
+            if not url and artifact_id:
+                artifact_data = get_artifact_rating(artifact_id) 
+                if artifact_data:
+                    url = artifact_data.get('url')
 
             LOGGER.info(f"Scoring {artifact_id} via runner logic...")
 
