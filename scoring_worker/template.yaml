@@ -88,4 +88,4 @@ Resources:
         ScoringQueueEvent:
           Type: SQS
           Properties:
-            Queue: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${ScoringQueueName}"
+            Queue: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${ScoringQueueName}" 
