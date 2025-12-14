@@ -50,7 +50,7 @@ Resources:
     Properties:
       PackageType: Image
       ImageUri: 
-        Ref: ImageUriParameter
+        Ref: ImageUriParameter 
       MemorySize: 1024 # High memory for model loading
       Timeout: 600 # 10 minutes max execution time for heavy scoring
       # --- Permissions ---
