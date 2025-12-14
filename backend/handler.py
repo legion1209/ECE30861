@@ -40,32 +40,39 @@ def lambda_handler(event, context):
     response = None
 
     # 2. Routing logic
-    
-    # [A] Login authentication (PUT /authenticate)
-    if http_method == 'PUT' and path == '/authenticate':
-        response = handle_authenticate(event)
-    
-    # [B] Upload Artifact (Supports model, dataset, code)
-    # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
-    # Example: /artifact/model, /artifact/dataset
-    if http_method == 'POST' and '/artifact/' in path:
-        # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
-        parts = path.strip('/').split('/')
-        if len(parts) == 3:
-            artifact_type = parts[2] # Gets 'model', 'dataset', or 'code'
-            response = handle_post_artifact(event, artifact_type)
+    try:
+        # [A] Login authentication (PUT /authenticate)
+        if http_method == 'PUT' and path == '/authenticate':
+            response = handle_authenticate(event)
+        
+        # [B] Upload Artifact (Supports model, dataset, code)
+        # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
+        # Example: /artifact/model, /artifact/dataset
+        if http_method == 'POST' and '/artifact/' in path:
+            # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
+            parts = path.strip('/').split('/')
+            if len(parts) == 3:
+                artifact_type = parts[2] # Gets 'model', 'dataset', or 'code'
+                response = handle_post_artifact(event, artifact_type)
 
-    # [C] Check rating (GET /artifact/model/{id}/rate)
-    if http_method == 'GET' and '/Prod/artifact/model/' in path and path.endswith('/rate'):
-        response = handle_get_rating(event)
+        # [C] Check rating (GET /artifact/model/{id}/rate)
+        if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
+            response = handle_get_rating(event)
 
-    # [D] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
-    if http_method == 'GET' and '/Prod/artifact/' in path:
-        response = handle_download_artifact(event)
+        # [D] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
+        if http_method == 'GET' and '/artifact/' in path:
+            response = handle_download_artifact(event)
 
-    # If no route matches
-    if 'headers' not in response:
-        response['headers'] = {}
+        # If no route matches
+        if 'headers' not in response:
+            response['headers'] = {}
+
+    except Exception as e:
+        LOGGER.error("Unhandled Error: %s", str(e), exc_info=True)
+        response = {
+            'statusCode': 500,
+            'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})
+        }
     
     response['headers'].update(CORS_HEADERS)
     
