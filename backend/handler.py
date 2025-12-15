@@ -257,11 +257,16 @@ def handle_search_artifacts(event):
         table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
         table = dynamodb.Table(table_name)
 
-        body = {}
+        body_content = {}
         if event.get('body'):
             try:
-                body = json.loads(event['body'])
+                data = json.loads(event['body'])
+                if isinstance(data, list) and data:
+                    body_content = data[0]
+                elif isinstance(data, dict):
+                    body_content = data
             except:
+                LOGGER.warning("Failed to parse search body.")
                 pass
 
         response = table.scan(
