@@ -283,10 +283,11 @@ def handle_search_artifacts(event):
         table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
         table = dynamodb.Table(table_name)
 
+        body_raw = event.get('body')
         body = []
-        if event.get('body'):
+        if body_raw:
             try:
-                body = json.loads(event['body'])
+                body = json.loads(body_raw)
             except Exception:
                 body = []
 
