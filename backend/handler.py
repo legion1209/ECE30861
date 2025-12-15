@@ -305,6 +305,19 @@ def handle_search_artifacts(event):
         # Scan table (OK for class-size datasets)
         resp = table.scan()
         items = resp.get('Items', [])
+            except:
+                pass
+
+        response = table.scan(
+            ProjectionExpression="#id, #name, #type, #status",
+            ExpressionAttributeNames={
+                "#id": "id", 
+                "#status": "status",
+                "#timestamp": "timestamp",
+                "#url": "url"
+            }
+        )
+        items = response.get('Items', [])
 
         results = []
         for item in items:
