@@ -24,6 +24,12 @@ CORS_HEADERS = {
     "Access-Control-Allow-Headers": "Content-Type, X-Authorization"
 }
 
+def add_cors(resp: dict) -> dict:
+    headers = resp.get('headers', {})
+    headers.update(CORS_HEADERS)
+    resp['headers'] = headers
+    return resp
+
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
@@ -32,10 +38,9 @@ class DecimalEncoder(json.JSONEncoder):
 
 def lambda_handler(event, context):
     """Router for API Gateway events."""
-    # 1. First step: Extract HTTP method and path (Must be done first)
     http_method = event.get('httpMethod')
-    path = event.get('path')
-    
+    path = event.get('path') or ""
+
     LOGGER.info(f"Received {http_method} request for {path}")
 
     if http_method == 'OPTIONS':
@@ -44,86 +49,88 @@ def lambda_handler(event, context):
             'headers': CORS_HEADERS,
             'body': ''
         }
-    response = None
 
-    # 2. Routing logic
     try:
         # [A] Login authentication (PUT /authenticate)
-        if http_method == 'PUT' and path == '/authenticate':
-            response = handle_authenticate(event)
-        
-        # [B] Upload Artifact (Supports model, dataset, code)
-        # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
-        # Example: /artifact/model, /artifact/dataset
-        if http_method == 'POST' and '/artifact/' in path:
-            # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
+        if http_method == 'PUT' and path.endswith('/authenticate'):
+            return add_cors(handle_authenticate(event))
+
+        # [B] Regex search (POST /artifact/byRegEx)
+        if http_method == 'POST' and path.endswith('/byRegEx'):
+            return add_cors(handle_search_by_regex(event))
+
+        # [C] List/Search artifacts (POST /artifact?offset=1)
+        # Template maps POST /artifact here; UI calls /artifact?offset=1
+        if http_method == 'POST' and path.rstrip('/').endswith('/artifact'):
+            return add_cors(handle_search_artifacts(event))
+
+        # [D] Upload Artifact (POST /artifact/{type})
+        if (
+            http_method == 'POST'
+            and '/artifact/' in path
+            and not path.endswith('/byRegEx')
+            and not path.rstrip('/').endswith('/artifact')
+            and not path.endswith('/license-check')
+        ):
             parts = path.strip('/').split('/')
-            if len(parts) == 2:
-                artifact_type = parts[1] # Gets 'model', 'dataset', or 'code'
-                response = handle_post_artifact(event, artifact_type)
+            if 'artifact' in parts:
+                idx = parts.index('artifact')
+                if len(parts) > idx + 1:
+                    artifact_type = parts[idx + 1]  # 'model', 'dataset', or 'code'
+                    return add_cors(handle_post_artifact(event, artifact_type))
 
-        # [C] Check rating (GET /artifact/model/{id}/rate)
+        # [E] Check rating (GET /artifact/model/{id}/rate)
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
-            response = handle_get_rating(event)
+            return add_cors(handle_get_rating(event))
 
-        # [D] Lineage (GET /artifact/{type}/{id}/lineage)
+        # [F] Lineage (GET /artifact/model/{id}/lineage)
         if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
             parts = path.strip('/').split('/')
             current_id = parts[-2] if len(parts) >= 2 else "unknown"
             current_type = parts[-3] if len(parts) >= 3 else "model"
-            
-            response = {
-                'statusCode': 200, 
+
+            return add_cors({
+                'statusCode': 200,
                 'body': json.dumps({
                     'nodes': [
                         {
-                            'artifact_id': current_id, 
+                            'artifact_id': current_id,
                             'name': 'Current Artifact',
-                            'source': current_type, 
+                            'source': current_type,
                             'metadata': {}
                         }
                     ],
                     'edges': []
                 })
-            }
+            })
 
-        # [E] License Check (GET /artifact/{type}/{id}/license)
+        # [G] License Check (POST /artifact/model/{id}/license-check)
         if http_method == 'POST' and '/artifact/model/' in path and path.endswith('/license-check'):
-            response = {
-                'statusCode': 200, 
+            return add_cors({
+                'statusCode': 200,
                 'body': json.dumps(True)
-            }
+            })
 
-        # [F] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
+        # [H] Download Artifact (GET /artifact/{type}/{id})
         if http_method == 'GET' and '/artifact/' in path:
-            response = handle_download_artifact(event)
+            return add_cors(handle_download_artifact(event))
 
-        # [G] Delete Artifact (DELETE /artifact/{type}/{id})
+        # [I] Delete Artifact (DELETE /artifact/{type}/{id})
         if http_method == 'DELETE' and '/artifact/' in path:
-            response = handle_delete_artifact(event)
+            return add_cors(handle_delete_artifact(event))
 
-        # [H] Search by RegEx (POST /artifact/byRegEx)
-        if http_method == 'POST' and path.endswith('/byRegEx'):
-            response = handle_search_by_regex(event) 
-
-        # [I] List/Search Artifacts (POST /artifacts)
-        if http_method == 'POST' and path.endswith('/artifacts'):
-            response = handle_search_artifacts(event)
-
-        # If no route matches
-        if 'headers' not in response:
-            response['headers'] = {}
+        # No route matched
+        return add_cors({
+            'statusCode': 404,
+            'body': json.dumps({'error': 'Not found'})
+        })
 
     except Exception as e:
         LOGGER.error("Unhandled Error: %s", str(e), exc_info=True)
-        response = {
+        return add_cors({
             'statusCode': 500,
             'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})
-        }
-    
-    response['headers'].update(CORS_HEADERS)
-    
-    return response
+        })
 
 def handle_authenticate(event):
     # Implement authentication logic here
@@ -192,75 +199,111 @@ def handle_post_artifact(event, artifact_type):
 # --- GET /artifact/model/{id}/rate (Polling) ---
 def handle_get_rating(event):
     try:
-        # Extract ID from path parameters
         artifact_id = event['pathParameters']['id']
-        
-        # Look up status and rating in DynamoDB
-        artifact_data = get_artifact_rating(artifact_id) 
-        
+
+        artifact_data = get_artifact_rating(artifact_id)
+
         if not artifact_data:
             return {'statusCode': 404, 'body': json.dumps({'error': 'Artifact not found'})}
-            
+
         status = artifact_data.get('status', 'PENDING')
-        
+
         if status == 'COMPLETE':
-            # Return the full ModelRating object
-            return {'statusCode': 200, 'body': json.dumps(artifact_data.get('ModelRating'), cls=DecimalEncoder)}
-        
-        # If pending or failed, return status only
-        return {'statusCode': 204, 'headers': {'X-Status': status}, 'body': ''}
-        
+            # Return just the ModelRating object (what frontend expects)
+            rating = artifact_data.get('ModelRating')
+            return {'statusCode': 200, 'body': json.dumps(rating, cls=DecimalEncoder)}
+
+        # If pending or failed, return status info
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'status': status})
+        }
+
     except Exception as e:
         LOGGER.error("Polling Error: %s", str(e), exc_info=True)
-        return {'statusCode': 500, 'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})}
-    
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})
+        }
+
 def handle_download_artifact(event):
-    # Check if artifact exists and is complete
-    # item = db.get_item(artifact_id)
-    # if not item or item.status == 'FAILED': return 404...
-    
-    # generate S3 Presigned URL for download
     try:
-        # path: Prod/artifacts/{type}/{id}
-        path = event.get('path')
+        path = event.get('path') or ""
         parts = path.strip('/').split('/')
 
-        if len(parts) >= 3:
-            artifact_type = parts[1]
-            artifact_id = parts[2]
-        else:
+        if 'artifact' not in parts:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
-        
+
+        idx = parts.index('artifact')
+        if len(parts) <= idx + 2:
+            return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
+
+        artifact_type = parts[idx + 1]
+        artifact_id = parts[idx + 2]
+
         s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
-        
+
         url = s3_client.generate_presigned_url(
             'get_object',
             Params={'Bucket': S3_BUCKET, 'Key': s3_key},
-            ExpiresIn=3600 # URL expires in 1 hour
+            ExpiresIn=3600  # URL expires in 1 hour
         )
-        artifact_name = url.strip('/').split('/')[-2]
+
+        artifact_name = artifact_id
+
         return {
             'statusCode': 200,
-            'body': json.dumps({'meta': {'name': artifact_name}, 'metadata': {'type': artifact_type, 'id': artifact_id}, 'data': {'url': url}}) # url for download
+            'body': json.dumps({
+                'meta': {'name': artifact_name},
+                'metadata': {'type': artifact_type, 'id': artifact_id},
+                'data': {'url': url}
+            })
         }
     except Exception as e:
+        LOGGER.error("Download Error: %s", str(e), exc_info=True)
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
 
 from boto3.dynamodb.conditions import Attr
 
 def handle_search_artifacts(event):
     """
-    Handle POST /artifacts to list or search packages.
+    Handle POST /artifact?offset=1 to list or search artifacts.
+
+    Request body (from UI):
+      [ { "name": "pattern-or-*", "types": ["model","dataset","code"]? } ]
+
+    Response (for UI Search):
+      [
+        { "id": "...", "name": "...", "type": "model" },
+        ...
+      ]
     """
     try:
         dynamodb = boto3.resource('dynamodb')
         table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
         table = dynamodb.Table(table_name)
 
-        body = {}
+        body = []
         if event.get('body'):
             try:
                 body = json.loads(event['body'])
+            except Exception:
+                body = []
+
+        # The spec uses an array of queries; take the first one.
+        if isinstance(body, list) and body:
+            query = body[0]
+        elif isinstance(body, dict):
+            query = body
+        else:
+            query = {}
+
+        name_filter = (query.get('name') or '*').strip()
+        type_filter_list = query.get('types') or []  # list of 'model' | 'dataset' | 'code'
+
+        # Scan table (OK for class-size datasets)
+        resp = table.scan()
+        items = resp.get('Items', [])
             except:
                 pass
 
@@ -277,22 +320,45 @@ def handle_search_artifacts(event):
 
         results = []
         for item in items:
+            art_id = item.get('id')
+            if not art_id:
+                continue
+
+            # Determine type
+            art_type = item.get('type', 'model')
+            if type_filter_list and art_type not in type_filter_list:
+                continue
+
+            # Determine name: prefer stored name, else derive from URL, else 'unknown'
+            name_val = item.get('name')
+            if not name_val:
+                url = item.get('url', '')
+                if isinstance(url, str) and url:
+                    name_val = url.rstrip('/').split('/')[-1] or 'unknown'
+                else:
+                    name_val = 'unknown'
+
+            # Apply name filter ("*" means all; otherwise substring match)
+            if name_filter != '*' and name_filter.lower() not in str(name_val).lower():
+                continue
+
             results.append({
-                'id': item.get('id'),
-                'name': item.get('name', 'unknown'),
-                'Version': '1.0.0',
-                'Type': item.get('type', 'model'),
-                'type': item.get('type', 'model')
+                'id': art_id,
+                'name': name_val,
+                'type': art_type,
             })
 
         return {
             'statusCode': 200,
-            'body': json.dumps(results)
+            'body': json.dumps(results, cls=DecimalEncoder)
         }
 
     except Exception as e:
         LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
-        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
     
 import re
 
@@ -328,15 +394,18 @@ def handle_search_by_regex(event):
     
 def handle_delete_artifact(event):
     try:
-        # Extract ID from path parameters
-        path = event.get('path')
+        path = event.get('path') or ""
         parts = path.strip('/').split('/')
 
-        if len(parts) >= 3:
-            artifact_type = parts[1]
-            artifact_id = parts[2]
-        else:
+        if 'artifact' not in parts:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
+
+        idx = parts.index('artifact')
+        if len(parts) <= idx + 2:
+            return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
+
+        artifact_type = parts[idx + 1]
+        artifact_id = parts[idx + 2]
 
         # Delete from S3
         s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
@@ -348,7 +417,13 @@ def handle_delete_artifact(event):
         table = dynamodb.Table(table_name)
         table.delete_item(Key={'id': artifact_id})
 
-        return {'statusCode': 200, 'body': json.dumps({'message': 'Artifact deleted successfully'})}
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Artifact deleted successfully'})
+        }
     except Exception as e:
         LOGGER.error("Delete Error: %s", str(e), exc_info=True)
-        return {'statusCode': 500, 'body': json.dumps({'error': f"Internal error: {str(e)}"})}
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f"Internal error: {str(e)}"})
+        }

@@ -346,14 +346,50 @@ function Create({ token, onError, onCreated }:{ token:string; onError:(m:string)
 
 function Rate({ token, id }:{ token:string; id:string }){
   const [rating, setRating] = useState<ModelRating | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(()=>{ (async()=>{
-    try{ setRating(await api<ModelRating>(`/artifact/model/${id}/rate`, { token })); }catch(e:any){ setError(e.message||String(e)); }
-  })(); }, [id]);
+    try{
+      const data = await api<any>(`/artifact/model/${id}/rate`, { token });
+      // If backend returns a full ModelRating
+      if (data && typeof data.net_score === "number") {
+        setRating(data as ModelRating);
+        setStatus("COMPLETE");
+      }
+      // If backend returns { status: "PENDING" } or similar
+      else if (data && typeof data.status === "string") {
+        setRating(null);
+        setStatus(data.status);
+      } else {
+        setRating(null);
+        setStatus("UNKNOWN");
+      }
+    }catch(e:any){
+      setError(e.message||String(e));
+    }
+  })(); }, [id, token]);
+
   return (
     <Card title="Model rating">
-      {error && <div role="alert" className="mb-3 rounded-md bg-red-50 p-3 text-red-900">{error}</div>}
-      {!rating ? <p>Loading…</p> : (
+      {error && (
+        <div
+          role="alert"
+          className="mb-3 rounded-md bg-red-50 p-3 text-red-900"
+        >
+          {error}
+        </div>
+      )}
+      {!rating ? (
+        <div>
+          <p>Rating not available yet.</p>
+          {status && (
+            <p className="text-sm text-gray-600">
+              Status: {status}
+            </p>
+          )}
+        </div>
+      ) : (
         <div className="grid gap-2 md:grid-cols-2">
           <Metric label="Net score" value={rating.net_score}/>
           <Metric label="Ramp-up" value={rating.ramp_up_time}/>
@@ -366,7 +402,8 @@ function Rate({ token, id }:{ token:string; id:string }){
           <Metric label="Reproducibility" value={rating.reproducibility}/>
           <Metric label="Reviewedness" value={rating.reviewedness}/>
           <Metric label="Tree score" value={rating.tree_score}/>
-          <div className="rounded-xl border p-3"><div className="font-medium">Size score</div>
+          <div className="rounded-xl border p-3">
+            <div className="font-medium">Size score</div>
             <ul className="text-sm text-gray-700">
               <li>Raspberry Pi: {rating.size_score.raspberry_pi}</li>
               <li>Jetson Nano: {rating.size_score.jetson_nano}</li>
@@ -379,6 +416,7 @@ function Rate({ token, id }:{ token:string; id:string }){
     </Card>
   );
 }
+
 function Metric({ label, value }:{ label:string; value:number }){
   return <div className="rounded-xl border p-3"><div className="text-sm text-gray-600">{label}</div><div className="text-xl font-semibold">{value.toFixed(2)}</div></div>;
 }
