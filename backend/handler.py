@@ -3,9 +3,10 @@ import json
 import os
 import uuid
 import boto3
-import urllib.request
 import logging
+import re
 from decimal import Decimal
+from boto3.dynamodb.conditions import Attr
 
 from src.acme_cli.database_service import create_artifact, get_artifact_rating 
 
@@ -55,64 +56,55 @@ def lambda_handler(event, context):
         # [B] Upload Artifact (Supports model, dataset, code)
         # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
         # Example: /artifact/model, /artifact/dataset
-        if http_method == 'POST' and '/artifact/' in path:
+        elif http_method == 'POST' and '/artifact/' in path:
             # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
-            parts = path.strip('/').split('/')
-            if len(parts) == 2:
-                artifact_type = parts[1] # Gets 'model', 'dataset', or 'code'
-                response = handle_post_artifact(event, artifact_type)
+            artifact_type = path.strip('/').split('/')[-1]
+            response = handle_post_artifact(event, artifact_type)
+            # Gets 'model', 'dataset', or 'code'
 
         # [C] Check rating (GET /artifact/model/{id}/rate)
-        if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
+        elif http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
             response = handle_get_rating(event)
 
         # [D] Lineage (GET /artifact/{type}/{id}/lineage)
-        if http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
+        elif http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
             parts = path.strip('/').split('/')
-            current_id = parts[-2] if len(parts) >= 2 else "unknown"
-            current_type = parts[-3] if len(parts) >= 3 else "model"
+            current_id = parts[-2] 
             
             response = {
-                'statusCode': 200, 
+                'statusCode': 200,
                 'body': json.dumps({
-                    'nodes': [
-                        {
-                            'artifact_id': current_id, 
-                            'name': 'Current Artifact',
-                            'source': current_type, 
-                            'metadata': {}
-                        }
-                    ],
+                    'nodes': [{'artifact_id': current_id, 'name': 'Current Artifact', 'source': 'model', 'metadata': {}}],
                     'edges': []
                 })
             }
 
         # [E] License Check (GET /artifact/{type}/{id}/license)
-        if http_method == 'POST' and '/artifact/model/' in path and path.endswith('/license-check'):
+        elif http_method == 'POST' and '/artifact/model/' in path and path.endswith('/license-check'):
             response = {
                 'statusCode': 200, 
                 'body': json.dumps(True)
             }
 
         # [F] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
-        if http_method == 'GET' and '/artifact/' in path:
+        elif http_method == 'GET' and '/artifact/' in path:
             response = handle_download_artifact(event)
 
         # [G] Delete Artifact (DELETE /artifact/{type}/{id})
-        if http_method == 'DELETE' and '/artifact/' in path:
+        elif http_method == 'DELETE' and '/artifact/' in path:
             response = handle_delete_artifact(event)
 
         # [H] Search by RegEx (POST /artifact/byRegEx)
-        if http_method == 'POST' and path.endswith('/byRegEx'):
+        elif http_method == 'POST' and path.endswith('/byRegEx'):
             response = handle_search_by_regex(event) 
 
         # [I] List/Search Artifacts (POST /artifacts)
-        if http_method == 'POST' and path.endswith('/artifacts'):
+        elif http_method == 'POST' and path.endswith('/artifacts'):
             response = handle_search_artifacts(event)
 
         # If no route matches
-        if 'headers' not in response:
-            response['headers'] = {}
+        else:
+            response = {'statusCode': 404, 'body': json.dumps({'error': f'No route for {http_method} {path}'})}
 
     except Exception as e:
         LOGGER.error("Unhandled Error: %s", str(e), exc_info=True)
@@ -120,7 +112,8 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})
         }
-    
+    if 'headers' not in response:
+        response['headers'] = {}
     response['headers'].update(CORS_HEADERS)
     
     return response
@@ -152,42 +145,57 @@ def handle_post_artifact(event, artifact_type):
         artifact_id = str(uuid.uuid4())
         s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
 
-        # 1. Download and Upload to S3
-        with urllib.request.urlopen(source_url) as response:
-            s3_client.put_object(
-                Bucket=S3_BUCKET,
-                Key=s3_key,
-                Body=response.read(),
-                ContentType=response.info().get_content_type()
-            )
-
-        # 2. Create PENDING record in DynamoDB
+        # Create PENDING record in DynamoDB
         create_artifact(artifact_id, source_url)
 
-        # 3. Send message to SQS (The ASYNCHRONOUS link)
-        if artifact_type == 'model':
+        # Send to SQS only if configured (skipped in local mode)
+        if SQS_URL and artifact_type == 'model':
+            s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
             sqs_client.send_message(
                 QueueUrl=SQS_URL,
                 MessageBody=json.dumps({
                     'artifact_id': artifact_id,
-                    's3_bucket': S3_BUCKET,
                     's3_key': s3_key,
                     'type': artifact_type,
                     'url': source_url
                 })
             )
+        elif artifact_type == 'model':
+            # LOCAL MODE: score inline (no SQS/S3)
+            LOGGER.info("LOCAL MODE: scoring inline for %s", artifact_id)
+            _score_inline(artifact_id, source_url)
         
-        # 4. Return 201 Accepted response immediately
+        # Return 201 Accepted response immediately
         return {
             'statusCode': 201,
             'body': json.dumps({
-                'metadata': {'id': artifact_id, 'name': 'unknown', 'type': artifact_type},
+                'metadata': {'id': artifact_id, 'name': source_url.split('/')[-1], 'type': artifact_type},
                 'data': {'url': source_url}
             })
         }
     except Exception as e:
         LOGGER.error("API Error: %s", str(e), exc_info=True)
         return {'statusCode': 500, 'body': json.dumps({'error': f"Internal error: {str(e)}", 'status': 'FAILED'})}
+
+def _score_inline(artifact_id: str, url: str):
+    """Run scoring synchronously in local mode (no SQS worker needed)."""
+    import threading
+    from src.acme_cli.runner import score_artifact_for_worker
+    from src.acme_cli.database_service import update_database
+
+    def _run():
+        try:
+            scores = score_artifact_for_worker(url)
+            net_score = scores.get('net_score', 0.0)
+            status = "COMPLETE" if net_score >= 0.5 else "FAILED"
+            update_database(artifact_id, status, scores)
+            LOGGER.info("Inline score done for %s: net_score=%.2f status=%s", artifact_id, net_score, status)
+        except Exception as exc:
+            LOGGER.error("Inline scoring failed for %s: %s", artifact_id, exc)
+            update_database(artifact_id, "FAILED", None)
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
 
 # --- GET /artifact/model/{id}/rate (Polling) ---
 def handle_get_rating(event):
@@ -224,29 +232,37 @@ def handle_download_artifact(event):
         # path: Prod/artifacts/{type}/{id}
         path = event.get('path')
         parts = path.strip('/').split('/')
+        artifact_data = get_artifact_rating(artifact_id)
 
         if len(parts) >= 3:
             artifact_type = parts[1]
             artifact_id = parts[2]
         else:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
-        
+        source_url = artifact_data.get('url', '')
         s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
         
-        url = s3_client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': S3_BUCKET, 'Key': s3_key},
-            ExpiresIn=3600 # URL expires in 1 hour
-        )
-        artifact_name = url.strip('/').split('/')[-2]
+        if S3_BUCKET:
+            s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
+            download_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': S3_BUCKET, 'Key': s3_key},
+                ExpiresIn=3600
+            )
+        else:
+            download_url = source_url
+
+        name = source_url.rstrip('/').split('/')[-1]
         return {
             'statusCode': 200,
-            'body': json.dumps({'meta': {'name': artifact_name}, 'metadata': {'type': artifact_type, 'id': artifact_id}, 'data': {'url': url}}) # url for download
+            'body': json.dumps({
+                'meta': {'name': name},
+                'metadata': {'type': artifact_type, 'id': artifact_id},
+                'data': {'url': download_url}
+            })
         }
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
-
-from boto3.dynamodb.conditions import Attr
 
 def handle_search_artifacts(event):
     """
@@ -257,50 +273,26 @@ def handle_search_artifacts(event):
         table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
         table = dynamodb.Table(table_name)
 
-        body_content = {}
-        if event.get('body'):
-            try:
-                data = json.loads(event['body'])
-                if isinstance(data, list) and data:
-                    body_content = data[0]
-                elif isinstance(data, dict):
-                    body_content = data
-            except:
-                LOGGER.warning("Failed to parse search body.")
-                pass
-
-        response = table.scan(
-            ProjectionExpression="#id, #name, #type, #status",
-            ExpressionAttributeNames={
-                "#id": "id", 
-                "#status": "status",
-                "#timestamp": "timestamp",
-                "#url": "url"
-            }
-        )
+        response = table.scan()
         items = response.get('Items', [])
 
         results = []
         for item in items:
             results.append({
                 'id': item.get('id'),
-                'name': item.get('name', 'unknown'),
+                'name': item.get('name', item.get('url', 'unknown').rstrip('/').split('/')[-1]),
                 'Version': '1.0.0',
                 'Type': item.get('type', 'model'),
-                'type': item.get('type', 'model')
+                'type': item.get('type', 'model'),
+                'status': item.get('status', 'PENDING'),
             })
 
-        return {
-            'statusCode': 200,
-            'body': json.dumps(results)
-        }
+        return {'statusCode': 200, 'body': json.dumps(results)}
 
     except Exception as e:
         LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
     
-import re
-
 def handle_search_by_regex(event):
     try:
         dynamodb = boto3.resource('dynamodb')
@@ -317,7 +309,7 @@ def handle_search_by_regex(event):
         pattern = re.compile(regex)
         
         for item in items:
-            name = item.get('name', '')
+            name = item.get('name', item.get('url', '').rstrip('/').split('/')[-1])
             if pattern.search(name):
                 matches.append({
                     'id': item.get('id'),
@@ -344,8 +336,9 @@ def handle_delete_artifact(event):
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
 
         # Delete from S3
-        s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
-        s3_client.delete_object(Bucket=S3_BUCKET, Key=s3_key)
+        if S3_BUCKET:
+            s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
+            s3_client.delete_object(Bucket=S3_BUCKET, Key=s3_key)
 
         # Delete from DynamoDB
         dynamodb = boto3.resource('dynamodb')

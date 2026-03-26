@@ -70,12 +70,6 @@ Resources:
             Path: /authenticate
             Method: PUT
 
-        SearchArtifacts:
-          Type: Api
-          Properties:
-            Path: /artifact
-            Method: POST
-
         PostArtifactModel:
           Type: Api
           Properties:
@@ -114,6 +108,22 @@ Resources:
           Properties:
             Path: /artifact/{type}/{id}
             Method: GET
+        DeleteArtifact:
+          Type: Api
+          Properties:
+            Path: /artifact/{type}/{id}
+            Method: DELETE
+
+        SearchArtifacts:
+          Type: Api
+          Properties:
+            Path: /artifacts
+            Method: POST
+        SearchByRegex:
+          Type: Api
+          Properties:
+            Path: /artifact/byRegEx
+            Method: POST
         
         Options:
           Type: Api

@@ -346,48 +346,62 @@ function Create({ token, onError, onCreated }:{ token:string; onError:(m:string)
 
 function Rate({ token, id }:{ token:string; id:string }){
   const [rating, setRating] = useState<ModelRating | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("PENDING");
   const [error, setError] = useState<string | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(()=>{ (async()=>{
-    try{
-      const data = await api<any>(`/artifact/model/${id}/rate`, { token });
-      // If backend returns a full ModelRating
-      if (data && typeof data.net_score === "number") {
-        setRating(data as ModelRating);
-        setStatus("COMPLETE");
+  useEffect(()=>{
+    let cancelled = false;
+
+    async function poll(){
+      try{
+        // fetch() directly so we can inspect the status code before parsing
+        const url = `${API_BASE}/artifact/model/${id}/rate`;
+        const res = await fetch(url, { headers: { "X-Authorization": token, "Accept": "application/json" } });
+
+        if (cancelled) return;
+
+        if (res.status === 204){
+          // Still processing — keep polling
+          const s = res.headers.get("X-Status") || "PENDING";
+          setStatus(s);
+          return;
+        }
+        if (res.status === 200){
+          const data = await res.json();
+          setRating(data as ModelRating);
+          setStatus("COMPLETE");
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return;
+        }
+        // Any other status is an error
+        const text = await res.text();
+        setError(`HTTP ${res.status}: ${text}`);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      }catch(e:any){
+        if (!cancelled) setError(e.message || String(e));
+        if (intervalRef.current) clearInterval(intervalRef.current);
       }
-      // If backend returns { status: "PENDING" } or similar
-      else if (data && typeof data.status === "string") {
-        setRating(null);
-        setStatus(data.status);
-      } else {
-        setRating(null);
-        setStatus("UNKNOWN");
-      }
-    }catch(e:any){
-      setError(e.message||String(e));
     }
-  })(); }, [id, token]);
+
+    poll(); // immediate first check
+    intervalRef.current = setInterval(poll, 5000); // then every 5s
+
+    return ()=>{
+      cancelled = true;
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [id, token]);
 
   return (
     <Card title="Model rating">
-      {error && (
-        <div
-          role="alert"
-          className="mb-3 rounded-md bg-red-50 p-3 text-red-900"
-        >
-          {error}
-        </div>
-      )}
+      {error && <div role="alert" className="mb-3 rounded-md bg-red-50 p-3 text-red-900">{error}</div>}
       {!rating ? (
-        <div>
-          <p>Rating not available yet.</p>
-          {status && (
-            <p className="text-sm text-gray-600">
-              Status: {status}
-            </p>
-          )}
+        <div className="flex flex-col gap-2">
+          <p className="text-gray-700">
+            {status === "FAILED" ? "❌ Scoring failed — NetScore too low or an error occurred." : "⏳ Scoring in progress, polling every 5s…"}
+          </p>
+          <p className="text-sm text-gray-500">Status: <span className="font-mono">{status}</span></p>
         </div>
       ) : (
         <div className="grid gap-2 md:grid-cols-2">

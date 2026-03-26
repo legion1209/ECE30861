@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -19,23 +20,35 @@ from acme_cli.utils import clamp
 LOGGER = logging.getLogger("acme_cli")
 LOGGER.setLevel(logging.DEBUG)  # Set the desired log level (DEBUG, INFO, etc.)
 
-# File handler to write logs to a file
-file_handler = logging.FileHandler('acme_cli.log')
-file_handler.setLevel(logging.DEBUG)  # Adjust this as necessary (e.g., INFO)
+def score_url(url: str) -> dict[str, Any]:
+    """Score a single HuggingFace model URL and return a score dict.
+    
+    This is the main entry point for the worker Lambda.
+    Writes the URL to a temp file so parse_url_file can read it,
+    then returns the first (and only) result as a dict.
+    """
+    _configure_logging()
 
-# Console handler to output logs to the console (optional)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
+    # parse_url_file expects lines in format: code_url, dataset_url, model_url
+    # For a bare model URL we use empty placeholders for code/dataset
+    line = f", ,{url}"
 
-# Create a formatter for the log messages (optional, but useful)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
-console_handler.setFormatter(formatter)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.write(line + "\n")
+        tmp_path = Path(f.name)
 
-# Add handlers to the logger
-LOGGER.addHandler(file_handler)
-LOGGER.addHandler(console_handler)
+    try:
+        targets = parse_url_file(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
 
+    if not targets:
+        LOGGER.warning("Could not build a ScoreTarget for URL: %s", url)
+        return _empty_record(url, error="Could not parse URL into a ScoreTarget")
+
+    context_builder = ContextBuilder()
+    scorer = ModelScorer(context_builder=context_builder)
+    return _score_target(scorer, targets[0])
 
 def score_file(url_file: Path) -> None:
     """Score every model referenced in *url_file* and emit NDJSON to stdout."""
@@ -158,4 +171,4 @@ def _configure_logging() -> None:
     LOGGER.setLevel(os.getenv("ACME_LOG_LEVEL", "INFO"))
 
 
-__all__ = ["score_file"]
+__all__ = ["score_file", "score_url"]

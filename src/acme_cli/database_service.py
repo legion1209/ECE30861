@@ -10,8 +10,6 @@ dynamodb = boto3.resource('dynamodb')
 # Table name is pulled from environment variables set by the SAM template
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
 
-dynamodb = boto3.resource('dynamodb')
-
 table = dynamodb.Table(TABLE_NAME)
 print(f"Database Service Connected to: {TABLE_NAME}")
 
@@ -86,7 +84,10 @@ def update_database(artifact_id, status, scores=None):
         for k, v in score_data.items():
             if isinstance(v, float):
                 # Convert float to Decimal to satisfy DynamoDB requirements
-                rating_map[k] = Decimal(str(v))
+                rating_map[k] = {
+                    dk: Decimal(str(dv)) if isinstance(dv, float) else dv
+                    for dk, dv in v.items()
+                }
             else:
                 rating_map[k] = v
         
@@ -105,4 +106,4 @@ def update_database(artifact_id, status, scores=None):
         print(f"Error updating database: {str(e)}")
         raise e
 
-__all__ = ["create_artifact", "update_rating", "get_artifact_rating"]
+__all__ = ["create_artifact", "update_rating", "get_artifact_rating", "update_database"]
