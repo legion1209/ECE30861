@@ -33,7 +33,8 @@ def run_tests(pytest_args: Sequence[str] | None = None) -> int:
     return _checked_run(args)
 
 
-def run_score(url_file: Path | None = None) -> int:
+def run_score(url_file: Path,
+    extra_args: Sequence[str] | None = None,) -> int:
     """Score the models referenced in *url_file*.
 
     The heavy lifting lives in :mod:`acme_cli.scoring`. This thin wrapper merely
@@ -43,7 +44,7 @@ def run_score(url_file: Path | None = None) -> int:
     sys.path.insert(0, str(SRC_ROOT))
     from acme_cli.scoring import score_file  # pylint: disable=import-error
 
-    score_file(url_file or [])
+    score_file(url_file, extra_args=extra_args)
     return 0
 
 def _checked_run(cmd: Sequence[str]) -> int:

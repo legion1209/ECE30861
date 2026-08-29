@@ -50,8 +50,11 @@ def score_url(url: str) -> dict[str, Any]:
     scorer = ModelScorer(context_builder=context_builder)
     return _score_target(scorer, targets[0])
 
-def score_file(url_file: Path) -> None:
+def score_file(url_file: Path,
+    extra_args: Sequence[str] | None = None,) -> None:
     """Score every model referenced in *url_file* and emit NDJSON to stdout."""
+    _ = extra_args
+    
     _configure_logging()
     targets = parse_url_file(url_file)
     if not targets:
