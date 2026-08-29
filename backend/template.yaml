@@ -124,6 +124,11 @@ Resources:
           Properties:
             Path: /artifact/byRegEx
             Method: POST
+        SearchByName:
+          Type: Api
+          Properties:
+            Path: /artifact/byName/{name}
+            Method: GET
         
         Options:
           Type: Api

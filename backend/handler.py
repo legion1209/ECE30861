@@ -6,7 +6,6 @@ import boto3
 import logging
 import re
 from decimal import Decimal
-from boto3.dynamodb.conditions import Attr
 
 from src.acme_cli.database_service import create_artifact, get_artifact_rating 
 
@@ -53,23 +52,14 @@ def lambda_handler(event, context):
         if http_method == 'PUT' and path == '/authenticate':
             response = handle_authenticate(event)
         
-        # [B] Upload Artifact (Supports model, dataset, code)
-        # Logic: It is a POST method, and the path starts with /artifact/, but excludes other sub-paths (like /byRegEx)
-        # Example: /artifact/model, /artifact/dataset
-        elif http_method == 'POST' and '/artifact/' in path:
-            # Simple path parsing to get type. Example: path="/Prod/artifact/model/id" -> parts=['', 'artifact', 'model']
-            artifact_type = path.strip('/').split('/')[-1]
-            response = handle_post_artifact(event, artifact_type)
-            # Gets 'model', 'dataset', or 'code'
-
-        # [C] Check rating (GET /artifact/model/{id}/rate)
+         # [B] Check rating (GET /artifact/model/{id}/rate)
         elif http_method == 'GET' and '/artifact/model/' in path and path.endswith('/rate'):
             response = handle_get_rating(event)
 
-        # [D] Lineage (GET /artifact/{type}/{id}/lineage)
+        # [C] Lineage (GET /artifact/{type}/{id}/lineage)
         elif http_method == 'GET' and '/artifact/model/' in path and path.endswith('/lineage'):
             parts = path.strip('/').split('/')
-            current_id = parts[-2] 
+            current_id = parts[-2]  
             
             response = {
                 'statusCode': 200,
@@ -79,26 +69,35 @@ def lambda_handler(event, context):
                 })
             }
 
-        # [E] License Check (GET /artifact/{type}/{id}/license)
+        # [D] License Check (POST /artifact/{type}/{id}/license-check)
         elif http_method == 'POST' and '/artifact/model/' in path and path.endswith('/license-check'):
             response = {
                 'statusCode': 200, 
                 'body': json.dumps(True)
             }
 
-        # [F] Download Artifact (GET /artifact/{type}/{id}) - (Added based on your requirements)
-        elif http_method == 'GET' and '/artifact/' in path:
-            response = handle_download_artifact(event)
-
-        # [G] Delete Artifact (DELETE /artifact/{type}/{id})
-        elif http_method == 'DELETE' and '/artifact/' in path:
-            response = handle_delete_artifact(event)
-
-        # [H] Search by RegEx (POST /artifact/byRegEx)
+        # [E] Search by RegEx (POST /artifact/byRegEx)
         elif http_method == 'POST' and path.endswith('/byRegEx'):
             response = handle_search_by_regex(event) 
 
-        # [I] List/Search Artifacts (POST /artifacts)
+        # [F] Search by exact name (GET /artifact/byName/{name})
+        elif http_method == 'GET' and '/artifact/byName/' in path:
+            response = handle_search_by_name(event)
+
+        # [G] Upload Artifact (Supports model, dataset, code)
+        elif http_method == 'POST' and path.rstrip('/').split('/')[-1] in {'model', 'dataset', 'code'}:
+            artifact_type = path.rstrip('/').split('/')[-1]
+            response = handle_post_artifact(event, artifact_type)
+
+        # [H] Download Artifact (GET /artifact/{type}/{id})
+        elif http_method == 'GET' and '/artifact/' in path:
+            response = handle_download_artifact(event)
+
+        # [I] Delete Artifact (DELETE /artifact/{type}/{id})
+        elif http_method == 'DELETE' and '/artifact/' in path:
+            response = handle_delete_artifact(event)
+
+        # [J] List/Search Artifacts (POST /artifacts)
         elif http_method == 'POST' and path.endswith('/artifacts'):
             response = handle_search_artifacts(event)
 
@@ -134,6 +133,29 @@ def handle_authenticate(event):
     except Exception as e:
         return {'statusCode': 400, 'body': json.dumps({'error': str(e)})}
 
+def _artifact_parts(path):
+    parts = path.strip('/').split('/')
+    try:
+        artifact_index = parts.index('artifact')
+    except ValueError:
+        return None, None
+
+    if len(parts) <= artifact_index + 2:
+        return None, None
+
+    return parts[artifact_index + 1], parts[artifact_index + 2]
+
+def _metadata_from_item(item):
+    source_url = item.get('url', '')
+    return {
+        'id': item.get('id'),
+        'name': item.get('name') or source_url.rstrip('/').split('/')[-1],
+        'Version': '1.0.0',
+        'Type': item.get('type', 'model'),
+        'type': item.get('type', 'model'),
+        'status': item.get('status', 'PENDING'),
+    }
+
 # --- POST /artifact/model (Job Submission) ---
 def handle_post_artifact(event, artifact_type):
     try:
@@ -145,8 +167,10 @@ def handle_post_artifact(event, artifact_type):
         artifact_id = str(uuid.uuid4())
         s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
 
+        name = source_url.rstrip('/').split('/')[-1]
+
         # Create PENDING record in DynamoDB
-        create_artifact(artifact_id, source_url)
+        create_artifact(artifact_id, source_url, artifact_type, name)
 
         # Send to SQS only if configured (skipped in local mode)
         if SQS_URL and artifact_type == 'model':
@@ -169,7 +193,7 @@ def handle_post_artifact(event, artifact_type):
         return {
             'statusCode': 201,
             'body': json.dumps({
-                'metadata': {'id': artifact_id, 'name': source_url.split('/')[-1], 'type': artifact_type},
+                'metadata': {'id': artifact_id, 'name': name, 'type': artifact_type},
                 'data': {'url': source_url}
             })
         }
@@ -229,16 +253,15 @@ def handle_download_artifact(event):
     
     # generate S3 Presigned URL for download
     try:
-        # path: Prod/artifacts/{type}/{id}
         path = event.get('path')
-        parts = path.strip('/').split('/')
-        artifact_data = get_artifact_rating(artifact_id)
-
-        if len(parts) >= 3:
-            artifact_type = parts[1]
-            artifact_id = parts[2]
-        else:
+        artifact_type, artifact_id = _artifact_parts(path)
+        if not artifact_type or not artifact_id:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
+
+        artifact_data = get_artifact_rating(artifact_id)
+        if not artifact_data:
+            return {'statusCode': 404, 'body': json.dumps({'error': 'Artifact not found'})}
+
         source_url = artifact_data.get('url', '')
         s3_key = f"sources/{artifact_type}/{artifact_id}.zip"
         
@@ -256,8 +279,7 @@ def handle_download_artifact(event):
         return {
             'statusCode': 200,
             'body': json.dumps({
-                'meta': {'name': name},
-                'metadata': {'type': artifact_type, 'id': artifact_id},
+                'metadata': {'type': artifact_type, 'id': artifact_id, 'name': name},
                 'data': {'url': download_url}
             })
         }
@@ -273,25 +295,38 @@ def handle_search_artifacts(event):
         table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
         table = dynamodb.Table(table_name)
 
+        queries = []
+        if event.get('body'):
+            parsed_body = json.loads(event['body'])
+            queries = parsed_body if isinstance(parsed_body, list) else [parsed_body]
+
         response = table.scan()
         items = response.get('Items', [])
 
         results = []
         for item in items:
-            results.append({
-                'id': item.get('id'),
-                'name': item.get('name', item.get('url', 'unknown').rstrip('/').split('/')[-1]),
-                'Version': '1.0.0',
-                'Type': item.get('type', 'model'),
-                'type': item.get('type', 'model'),
-                'status': item.get('status', 'PENDING'),
-            })
+            metadata = _metadata_from_item(item)
+            if queries and not any(_matches_artifact_query(metadata, query) for query in queries):
+                continue
+            results.append(metadata)
 
         return {'statusCode': 200, 'body': json.dumps(results)}
-
+    
     except Exception as e:
-        LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
-        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+            LOGGER.error(f"Search Error: {str(e)}", exc_info=True)
+            return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+
+def _matches_artifact_query(metadata, query):
+    name_filter = query.get('name', '*') if isinstance(query, dict) else '*'
+    type_filter = query.get('types') if isinstance(query, dict) else None
+
+    if type_filter and metadata.get('type') not in type_filter:
+        return False
+
+    if not name_filter or name_filter == '*':
+        return True
+
+    return metadata.get('name') == name_filter
     
 def handle_search_by_regex(event):
     try:
@@ -309,30 +344,42 @@ def handle_search_by_regex(event):
         pattern = re.compile(regex)
         
         for item in items:
-            name = item.get('name', item.get('url', '').rstrip('/').split('/')[-1])
+            metadata = _metadata_from_item(item)
+            name = metadata.get('name', '')
             if pattern.search(name):
-                matches.append({
-                    'id': item.get('id'),
-                    'name': name,
-                    'Version': '1.0.0',
-                    'Type': item.get('type'),
-                    'type': item.get('type')
-                })
+                matches.append(metadata)
                 
         return {'statusCode': 200, 'body': json.dumps(matches)}
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+
+def handle_search_by_name(event):
+    try:
+        dynamodb = boto3.resource('dynamodb')
+        table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'ECE461Artifacts')
+        table = dynamodb.Table(table_name)
+        name = path_unquote(event.get('path', '').rstrip('/').split('/')[-1])
+
+        response = table.scan()
+        matches = [
+            metadata for metadata in (_metadata_from_item(item) for item in response.get('Items', []))
+            if metadata.get('name') == name
+        ]
+
+        return {'statusCode': 200, 'body': json.dumps(matches)}
+    except Exception as e:
+        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+
+def path_unquote(value):
+    from urllib.parse import unquote
+    return unquote(value)
     
 def handle_delete_artifact(event):
     try:
         # Extract ID from path parameters
         path = event.get('path')
-        parts = path.strip('/').split('/')
-
-        if len(parts) >= 3:
-            artifact_type = parts[1]
-            artifact_id = parts[2]
-        else:
+        artifact_type, artifact_id = _artifact_parts(path)
+        if not artifact_type or not artifact_id:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Invalid path'})}
 
         # Delete from S3

@@ -14,7 +14,7 @@ table = dynamodb.Table(TABLE_NAME)
 print(f"Database Service Connected to: {TABLE_NAME}")
 
 # --- 1. Used by API Lambda (Job Submission) ---
-def create_artifact(artifact_id: str, url: str) -> None:
+def create_artifact(artifact_id: str, url: str, artifact_type: str = "model", name: str | None = None) -> None:
     """
     Creates the initial artifact record with PENDING status.
     Called by the API Lambda (backend-api/handler.py).
@@ -25,6 +25,8 @@ def create_artifact(artifact_id: str, url: str) -> None:
         Item={
             'id': artifact_id, # Primary Key
             'url': url,
+            'name': name or url.rstrip('/').split('/')[-1],
+            'type': artifact_type,
             'status': 'PENDING',
             'timestamp': current_timestamp 
         }

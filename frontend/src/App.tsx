@@ -271,7 +271,7 @@ function Detail({ token, meta, onError, onOpen }:{ token:string; meta:ArtifactMe
     if (!meta) return;
     setBusy(true);
     try{
-      const res = await api<Artifact>(`/artifacts/${meta.type}/${meta.id}`, { token });
+      const res = await api<Artifact>(`/artifact/${meta.type}/${meta.id}`, { token });
       setArtifact(res);
     }catch(err:any){ onError(err.message || String(err)); }
     finally{ setBusy(false); }
